@@ -1,6 +1,46 @@
 import type { Options } from '@wdio/types'
+import * as fs from 'fs';
 import * as path from 'path';
-const absolutePath = path.resolve();
+
+const projectRoot = process.cwd();
+const appPath = path.resolve(projectRoot, 'DriverIO.apk');
+const androidDeviceName = process.env.ANDROID_DEVICE_NAME || 'emulator-5554';
+const androidPlatformVersion = process.env.ANDROID_PLATFORM_VERSION || '';
+const appiumHost = process.env.APPIUM_HOST || '127.0.0.1';
+const appiumPort = Number(process.env.APPIUM_PORT || 4724);
+
+const candidateSdkPaths = [
+    process.env.ANDROID_HOME,
+    process.env.ANDROID_SDK_ROOT,
+    process.env.ANDROID_SDK_PATH,
+    process.env.HOME ? path.join(process.env.HOME, 'Library/Android/sdk') : undefined,
+    process.env.HOME ? path.join(process.env.HOME, 'android-sdk') : undefined,
+].filter((value): value is string => Boolean(value));
+
+const detectedSdkPath = candidateSdkPaths.find((sdkPath) => fs.existsSync(sdkPath));
+
+if (detectedSdkPath) {
+    if (!process.env.ANDROID_HOME) {
+        process.env.ANDROID_HOME = detectedSdkPath;
+    }
+    if (!process.env.ANDROID_SDK_ROOT) {
+        process.env.ANDROID_SDK_ROOT = detectedSdkPath;
+    }
+
+    const platformToolsPath = path.join(detectedSdkPath, 'platform-tools');
+    const cmdlineToolsPath = path.join(detectedSdkPath, 'cmdline-tools', 'latest', 'bin');
+    const extraPaths = [platformToolsPath, cmdlineToolsPath].filter((entry) => fs.existsSync(entry));
+
+    if (extraPaths.length > 0) {
+        const currentPath = process.env.PATH || '';
+        const mergedPath = [currentPath, ...extraPaths]
+            .filter(Boolean)
+            .join(path.delimiter);
+
+        process.env.PATH = mergedPath;
+    }
+}
+
 console.log('Configurando los reporters...');
 export const config: Options.Testrunner = {
     //
@@ -17,7 +57,8 @@ export const config: Options.Testrunner = {
         }
     },
 
-    port: 4723,
+    hostname: appiumHost,
+    port: appiumPort,
     //
     // ==================
     // Specify Test Files
@@ -63,14 +104,14 @@ export const config: Options.Testrunner = {
     // https://saucelabs.com/platform/platform-configurator
     //
     capabilities: [{
-        platformName: "Android",
-        "appium:platformVersion": "14.0",
-        "appium:deviceName": "Whatever",
-        "appium:automationName": "UiAutomator2",
-        "appium:app": "C:\\Auto\\Wdio\\FirstMobile\\DriverIO.apk",
-        "appium:autoGrantPermissions": true,
-        "appium:unicodeKeyboard": true,
-        "appium:noReset": false
+        platformName: 'Android',
+        ...(androidPlatformVersion ? { 'appium:platformVersion': androidPlatformVersion } : {}),
+        'appium:deviceName': androidDeviceName,
+        'appium:automationName': 'UiAutomator2',
+        'appium:app': appPath,
+        'appium:autoGrantPermissions': true,
+        'appium:unicodeKeyboard': true,
+        'appium:noReset': false
     }],
 
 
@@ -124,11 +165,9 @@ export const config: Options.Testrunner = {
     // commands. Instead, they hook themselves up into the test process.
     services: [
         ['appium', {
-            // ... otras configuraciones
             args: {
-                address: 'localhost',
-                // ... otras configuraciones de args
-                port: 4723, // Cambia a un puerto disponible
+                address: appiumHost,
+                port: appiumPort,
             },
         }],
     ],

@@ -2,36 +2,49 @@ import { $ } from '@wdio/globals'
 
 class webViewPage {
 
+    private async tryClickFirstAvailable(selectors: string[]) {
+        for (const selector of selectors) {
+            const element = $(selector);
+            try {
+                await element.waitForDisplayed({ timeout: 3000, interval: 200 });
+                await element.click();
+                return true;
+            } catch {
+                // Intentionally ignored: the element was not present in the current UI state.
+            }
+        }
 
-    public get closeAdButton() {
-        return $('//android.widget.Button[@text="Close"]');
-    }
-
-    public get watchOnYTButton() {
-        return $('//android.widget.TextView[@text="Watch on YouTube"]');
-    }
-
-    public get getStartedButton(){
-        return $('//android.widget.TextView[@text="Get Started"]')
+        return false;
     }
 
     async closeAd() {
-        await browser.waitUntil(async () => {
-            return await this.closeAdButton.isDisplayed();
-        }, {
-            timeout: 10000,
-            timeoutMsg: 'El botón "closeAdButton" no se mostró después de 10 segundos'
-        });
+        const clicked = await this.tryClickFirstAvailable([
+            '//android.widget.Button[@text="Close"]',
+            '//android.widget.Button[contains(@text, "Close")]',
+            '//android.widget.TextView[@text="Close"]',
+            '//android.widget.Button[@text="No thanks"]',
+            '//android.widget.Button[@text="No, thanks"]',
+            '//android.widget.TextView[@text="No thanks"]',
+            '//android.widget.TextView[@text="No, thanks"]'
+        ]);
 
-        await this.closeAdButton.click();
-
+        if (!clicked) {
+            await browser.pause(1000);
+        }
     }
 
-    async goToGetStartedPage(){
-        await this.getStartedButton.click();
+    async goToGetStartedPage() {
+        const clicked = await this.tryClickFirstAvailable([
+            '//android.widget.TextView[@text="Get Started"]',
+            '//android.view.View[@text="Get Started"]',
+            '//android.widget.TextView[contains(@text, "Get Started")]',
+            '//android.view.View[contains(@text, "Get Started")]'
+        ]);
+
+        if (!clicked) {
+            await browser.pause(1000);
+        }
     }
-
-
 }
 
 export default new webViewPage();

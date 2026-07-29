@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Run WDIO Mobile Tests",
+      "label": "WDIO: Run all tests",
       "type": "shell",
-      "command": "npm run wdio -- --spec ./features/login.feature",
+      "command": "npm run wdio",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -14,7 +14,22 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "shared",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "WDIO: Run login feature",
+      "type": "shell",
+      "command": "npm run wdio -- --spec ./features/login.feature",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
         "clear": true
       },
       "problemMatcher": []

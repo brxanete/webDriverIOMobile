@@ -1,6 +1,4 @@
-import { Given, When, Then } from '@wdio/cucumber-framework';
-
-import { expect } from '@wdio/globals';
+import { Given, When } from '@wdio/cucumber-framework';
 import homePage from '../userInterfaces/home.page.ts';
 import permanentBarPage from '../userInterfaces/permanentBar.page.ts';
 import webViewPage from '../userInterfaces/webView.page.ts';

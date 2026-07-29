@@ -1,4 +1,3 @@
-import type { Options } from '@wdio/types'
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -8,6 +7,7 @@ const androidDeviceName = process.env.ANDROID_DEVICE_NAME || 'emulator-5554';
 const androidPlatformVersion = process.env.ANDROID_PLATFORM_VERSION || '';
 const appiumHost = process.env.APPIUM_HOST || '127.0.0.1';
 const appiumPort = Number(process.env.APPIUM_PORT || 4724);
+const isCI = Boolean(process.env.CI);
 
 const candidateSdkPaths = [
     process.env.ANDROID_HOME,
@@ -42,21 +42,13 @@ if (detectedSdkPath) {
 }
 
 console.log('Configurando los reporters...');
-export const config: Options.Testrunner = {
+export const config = {
     //
     // ====================
     // Runner Configuration
     // ====================
     // WebdriverIO supports running e2e tests as well as unit and component tests.
     runner: 'local',
-    autoCompileOpts: {
-        autoCompile: true,
-        tsNodeOpts: {
-            project: './tsconfig.json',
-            transpileOnly: true
-        }
-    },
-
     hostname: appiumHost,
     port: appiumPort,
     //
@@ -123,7 +115,7 @@ export const config: Options.Testrunner = {
     // Define all options that are relevant for the WebdriverIO instance here
     //
     // Level of logging verbosity: trace | debug | info | warn | error | silent
-    logLevel: 'info',
+    logLevel: isCI ? 'warn' : 'info',
     //
     // Set specific log levels per logger
     // loggers:
@@ -171,8 +163,9 @@ export const config: Options.Testrunner = {
             },
         }],
     ],
-
-
+    outputDir: './reports',
+    specFileRetries: 0,
+    specFileRetriesDelay: 0,
 
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
@@ -208,20 +201,18 @@ export const config: Options.Testrunner = {
     }]],
 
 
-    afterStep: async function (step, scenario, { error, duration, passed }, context) {
+    afterStep: async function (_step: unknown, _scenario: unknown, { error, passed }: { error?: Error; passed?: boolean }) {
         if (error || passed) {
             await browser.takeScreenshot();
-
         }
     },
     // If you are using Cucumber you need to specify the location of your step definitions.
     cucumberOpts: {
         // <string[]> (file/dir) require files before executing features
         require: ['./features/step-definitions/elementValidationStep.ts'],
+        requireModule: ['ts-node/register/transpile-only'],
         // <boolean> show full backtrace for errors
         backtrace: false,
-        // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
-        requireModule: [],
         // <boolean> invoke formatters without executing steps
         dryRun: false,
         // <boolean> abort the run on first failure

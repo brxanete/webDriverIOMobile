@@ -1,33 +1,82 @@
 # WebDriverIO Mobile Automation Project
 
-Este proyecto implementa pruebas de automatización para aplicaciones móviles Android utilizando WebDriverIO, Cucumber y Appium. La suite está diseñada para ejecutarse sobre un emulador Android o un dispositivo físico compatible con UIAutomator2.
+Este proyecto implementa pruebas automatizadas para una app Android usando WebDriverIO, Cucumber, Appium y TypeScript. Está pensado para ejecutarse en macOS con un emulador Android o un dispositivo físico compatible con UIAutomator2.
 
-## 1. Descripción general
+## 1. Qué incluye este proyecto
 
-El proyecto está estructurado para ejecutar escenarios BDD con Cucumber y validar flujos de navegación y elementos visuales dentro de una aplicación Android. El stack principal incluye:
-
-- WebDriverIO v8
-- Cucumber
-- Appium
-- UIAutomator2
+- WebDriverIO 9
+- Cucumber para BDD
+- Appium para la automatización móvil
+- UIAutomator2 como driver de Android
 - TypeScript
-- Allure Reports
+- Allure Reports para evidencias
+- Configuración preparada para ejecutarse desde VS Code
 
-## 2. Requisitos previos
+## 2. Requisitos previos en macOS
 
-Antes de instalar y ejecutar el proyecto, asegúrate de tener lo siguiente instalado y configurado:
+Asegúrate de tener instalado y configurado lo siguiente:
 
-- Node.js 20 LTS o superior
+- Node.js 20 o superior
 - npm 10 o superior
 - Java Development Kit (JDK) 11 o superior
-- Android Studio instalado
-- Android SDK configurado
+- Android Studio
+- Android SDK instalado en:
+  - $HOME/Library/Android/sdk
 - Un emulador Android en ejecución o un dispositivo físico conectado
-- Acceso a internet para descargar dependencias y drivers
+- Appium y el driver UIAutomator2
 
-> Se recomienda usar una versión estable de Android Studio y mantener actualizados los componentes del SDK Platform Tools y Android Emulator.
+## 3. Instalación
 
-## 3. Estructura del proyecto
+### 3.1 Clonar y entrar al proyecto
+
+```bash
+cd /ruta/del/proyecto
+```
+
+### 3.2 Instalar dependencias
+
+```bash
+npm install
+```
+
+### 3.3 Configurar Android SDK en macOS
+
+Agrega estas líneas a tu archivo de perfil shell, por ejemplo .zshrc o .bash_profile:
+
+```bash
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
+export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+```
+
+Guarda el archivo y recarga la terminal:
+
+```bash
+source ~/.zshrc
+```
+
+### 3.4 Verificar que Android esté disponible
+
+```bash
+adb devices
+```
+
+Si el emulador está encendido, deberías ver un dispositivo listado.
+
+### 3.5 Iniciar un emulador si hace falta
+
+```bash
+emulator -list-avds
+emulator -avd <nombre-del-emulador>
+```
+
+### 3.6 Instalar el driver de Appium
+
+```bash
+npx appium driver install uiautomator2
+```
+
+## 4. Estructura del proyecto
 
 ```text
 .
@@ -36,6 +85,9 @@ Antes de instalar y ejecutar el proyecto, asegúrate de tener lo siguiente insta
 │   ├── exceptions/
 │   ├── userInterfaces/
 │   └── login.feature
+├── .vscode/
+│   ├── settings.json
+│   └── tasks.json
 ├── DriverIO.apk
 ├── package.json
 ├── tsconfig.json
@@ -43,209 +95,99 @@ Antes de instalar y ejecutar el proyecto, asegúrate de tener lo siguiente insta
 └── README.md
 ```
 
-## 4. Instalación
+## 5. Ejecutar pruebas
 
-### 4.1 macOS
-
-1. Clona el repositorio y entra a la carpeta del proyecto:
+### 5.1 Ejecutar toda la suite
 
 ```bash
-cd /ruta/del/proyecto
+npm run wdio
 ```
 
-2. Instala las dependencias de Node.js:
+### 5.2 Ejecutar una feature específica
 
 ```bash
-npm install
+npm run wdio -- --spec ./features/login.feature
 ```
 
-3. Configura las variables de entorno de Android:
+### 5.3 Ejecutar desde VS Code
 
-```bash
-export ANDROID_HOME="$HOME/Library/Android/sdk"
-export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
-```
+Puedes usar las tareas configuradas en [.vscode/tasks.json](.vscode/tasks.json):
 
-4. Verifica que el emulador o dispositivo esté disponible:
+- WDIO: Run all tests
+- WDIO: Run login feature
 
-```bash
-adb devices
-```
-
-Si todo está bien, deberías ver una lista que incluya tu emulador o dispositivo conectado.
-
-5. Inicia un emulador Android si aún no está encendido:
-
-```bash
-emulator -list-avds
-emulator -avd <nombre-del-emulador>
-```
-
-6. Instala el driver de Appium para Android si es necesario:
-
-```bash
-npx appium driver install uiautomator2
-```
-
-7. Ejecuta la prueba:
-
-```bash
-npx wdio run ./wdio.conf.ts --spec ./features/login.feature
-```
-
-### 4.2 Windows
-
-1. Abre una terminal en la carpeta del proyecto.
-
-2. Instala las dependencias:
-
-```powershell
-npm install
-```
-
-3. Configura las variables de entorno de Android en tu sistema:
-
-- Variable: ANDROID_HOME
-- Valor: C:\Users\TuUsuario\AppData\Local\Android\Sdk
-
-Agrega también a PATH:
-
-```text
-%ANDROID_HOME%\platform-tools
-%ANDROID_HOME%\emulator
-```
-
-4. Cierra y vuelve a abrir la terminal para aplicar los cambios.
-
-5. Verifica el dispositivo:
-
-```powershell
-adb devices
-```
-
-6. Inicia el emulador desde Android Studio o desde la terminal:
-
-```powershell
-emulator -list-avds
-emulator -avd <nombre-del-emulador>
-```
-
-7. Ejecuta la prueba:
-
-```powershell
-npx wdio run ./wdio.conf.ts --spec ./features/login.feature
-```
-
-### 4.3 Linux
-
-1. Entra al directorio del proyecto:
-
-```bash
-cd /ruta/del/proyecto
-```
-
-2. Instala las dependencias:
-
-```bash
-npm install
-```
-
-3. Configura Android SDK en tu shell:
-
-```bash
-export ANDROID_HOME="$HOME/Android/Sdk"
-export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
-```
-
-4. Verifica que el emulador o dispositivo esté disponible:
-
-```bash
-adb devices
-```
-
-5. Inicia el emulador:
-
-```bash
-emulator -list-avds
-emulator -avd <nombre-del-emulador>
-```
-
-6. Ejecuta la prueba:
-
-```bash
-npx wdio run ./wdio.conf.ts --spec ./features/login.feature
-```
-
-## 5. Ejecución de pruebas
-
-### Ejecutar una feature específica
-
-```bash
-npx wdio run ./wdio.conf.ts --spec ./features/login.feature
-```
-
-### Ejecutar todas las features disponibles
-
-```bash
-npx wdio run ./wdio.conf.ts
-```
+También puedes ir a la paleta de comandos con Cmd+Shift+P y buscar "Tasks: Run Task".
 
 ## 6. Configuración principal
 
-La configuración del runner se encuentra en [wdio.conf.ts](wdio.conf.ts). Allí se definen:
+La configuración central está en [wdio.conf.ts](wdio.conf.ts). Allí se definen:
 
-- el puerto de Appium
+- el host y puerto de Appium
 - la capacidad del dispositivo Android
-- el archivo APK a instalar
-- el framework de pruebas Cucumber
-- los reportes de ejecución
+- la ruta del APK a instalar
+- el framework Cucumber
+- los reportes de Allure
+- la detección automática del SDK Android en macOS
 
-El archivo de prueba principal se encuentra en [features/login.feature](features/login.feature), y las definiciones de pasos en [features/step-definitions/elementValidationStep.ts](features/step-definitions/elementValidationStep.ts).
+## 7. Reportes
 
-## 7. Solución de problemas comunes
+Las ejecuciones generan capturas y reportes en la carpeta:
 
-### Appium no responde
+```text
+allure-results/
+```
 
-Asegúrate de que el puerto 4723 esté libre y que Appium esté disponible. Puedes comprobarlo con:
+Puedes abrirlos con Allure o revisar los artefactos generados por la ejecución.
+
+## 8. Solución de problemas comunes
+
+### Appium no inicia
+
+Verifica que el SDK esté bien configurado:
 
 ```bash
-lsof -i :4723
+echo $ANDROID_HOME
+echo $ANDROID_SDK_ROOT
+which adb
 ```
+
+Si no aparecen valores, revisa el archivo de perfil shell y vuelve a cargarlo.
+
+### Error: Neither ANDROID_HOME nor ANDROID_SDK_ROOT environment variable was exported
+
+Esto ocurre cuando Appium no detecta el SDK. En este proyecto la configuración intenta resolverlo automáticamente, pero si sigue apareciendo, revisa tus variables de entorno y el path de Android SDK.
 
 ### El emulador no aparece en adb devices
 
-- Verifica que el emulador esté encendido.
+- Verifica que el emulador está arrancado.
 - Asegúrate de haber aceptado los permisos de Android Studio.
-- Intenta reiniciar el emulador.
+- Reinicia el emulador si hace falta.
 
 ### El APK no se encuentra
 
 Comprueba que el archivo [DriverIO.apk](DriverIO.apk) exista en la raíz del proyecto.
 
-### Error de driver UIAutomator2
+### El driver UIAutomator2 falla
 
-Instala o actualiza el driver con:
+Instálalo o actualízalo con:
 
 ```bash
 npx appium driver install uiautomator2
 ```
 
-## 8. Recomendaciones de uso
+## 9. Recomendaciones
 
-- Mantén el emulador en buen estado y con suficiente almacenamiento.
-- Usa una versión de Android compatible con la aplicación objetivo.
-- Si trabajas con varios dispositivos, define el nombre del dispositivo correctamente en la configuración o mediante variables de entorno.
-- Para entornos de CI, se recomienda parametrizar la configuración del dispositivo y las rutas del SDK.
+- Mantén el emulador actualizado y con espacio suficiente.
+- Usa selectores robustos en tus step definitions.
+- Mantén centralizada la configuración del dispositivo y del SDK.
+- Si vas a ejecutar desde CI o desde otros equipos, parametriza las rutas del SDK y del dispositivo.
 
-## 9. Contribución
+## 10. Notas para desarrollo en VS Code
 
-Si deseas extender o mejorar este proyecto, se recomienda:
+El proyecto ya incluye configuración básica para trabajar mejor desde VS Code:
 
-1. Mantener los pasos BDD claros y legibles.
-2. Usar selectores robustos y estables.
-3. Mantener la configuración centralizada.
-4. Añadir validaciones que faciliten el diagnóstico en caso de fallo.
+- tareas para ejecutar pruebas desde la barra de tareas
+- configuración de Cucumber/feature files
+- soporte para ejecutar el runner de forma directa desde el editor
 
----
-
-Este proyecto está preparado para ejecutarse localmente con un entorno Android funcional y una configuración mínima de Appium. Si necesitas, también puedo preparar una versión de este README orientada a CI/CD, Docker o ejecución en GitHub Actions.
+Si quieres, en el siguiente paso puedo preparar también una guía de integración con el Test Explorer y extensiones de Cucumber para VS Code.

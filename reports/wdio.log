@@ -1,0 +1,17 @@
+2026-07-29T02:39:37.791Z INFO @wdio/cli:launcher: Run onPrepare hook
+2026-07-29T02:39:37.793Z INFO @wdio/appium-service: Will spawn Appium process: node /Users/bryanplata/Documents/Repo Bryan/webDriverIOMobile/node_modules/appium/index.js --base-path / --address 127.0.0.1 --port 4724
+2026-07-29T02:39:38.847Z INFO @wdio/appium-service: Appium started with ID: 23882
+2026-07-29T02:39:38.848Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-07-29T02:39:38.849Z INFO @wdio/xvfb: XvfbManager.init() called
+2026-07-29T02:39:38.849Z INFO @wdio/xvfb: Xvfb not needed on current platform
+2026-07-29T02:39:38.849Z INFO @wdio/local-runner: Start worker 0-0 with arg: 
+2026-07-29T02:39:38.858Z INFO @wdio/xvfb:ProcessFactory: xvfb-run not found, falling back to regular fork
+2026-07-29T02:39:38.859Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=false
+2026-07-29T02:39:38.859Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+2026-07-29T02:39:45.058Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+2026-07-29T02:39:45.058Z INFO @wdio/local-runner: Shutting down spawned worker
+2026-07-29T02:39:45.308Z INFO @wdio/local-runner: Waiting for 0 to shut down gracefully
+2026-07-29T02:39:45.308Z INFO @wdio/local-runner: shutting down
+2026-07-29T02:39:45.308Z INFO @wdio/cli:launcher: Run onComplete hook
+2026-07-29T02:39:45.309Z INFO @wdio/appium-service: Killing entire Appium tree
+2026-07-29T02:39:45.350Z INFO @wdio/appium-service: Process and its children successfully terminated

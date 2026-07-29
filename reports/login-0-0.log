@@ -1,0 +1,18 @@
+2026-07-29T02:39:39.298Z INFO @wdio/local-runner: Run worker command: run
+2026-07-29T02:39:39.604Z INFO webdriver: Initiate new session using the WebDriver protocol
+2026-07-29T02:39:39.604Z INFO @wdio/utils: Connecting to existing driver at http://127.0.0.1:4724/
+2026-07-29T02:39:39.609Z INFO webdriver: [POST] http://127.0.0.1:4724/session
+2026-07-29T02:39:44.714Z ERROR @wdio/runner: TypeError: Cannot read properties of undefined (reading 'fileExists')
+    at readConfig (/Users/bryanplata/Documents/Repo Bryan/webDriverIOMobile/node_modules/ts-node/src/configuration.ts:161:25)
+    at findAndReadConfig (/Users/bryanplata/Documents/Repo Bryan/webDriverIOMobile/node_modules/ts-node/src/configuration.ts:79:5)
+    at create (/Users/bryanplata/Documents/Repo Bryan/webDriverIOMobile/node_modules/ts-node/src/index.ts:623:46)
+    at Object.register (/Users/bryanplata/Documents/Repo Bryan/webDriverIOMobile/node_modules/ts-node/src/index.ts:591:15)
+    at Object.<anonymous> (/Users/bryanplata/Documents/Repo Bryan/webDriverIOMobile/node_modules/ts-node/register/transpile-only.js:1:16)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Object.transformer (/Users/bryanplata/Documents/Repo Bryan/webDriverIOMobile/node_modules/tsx/dist/register-BoI6-WNn.cjs:9:3252)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at cjsLoader (node:internal/modules/esm/translators:346:17)
+2026-07-29T02:39:44.718Z INFO webdriver: COMMAND deleteSession()
+2026-07-29T02:39:44.719Z INFO webdriver: [DELETE] http://127.0.0.1:4724/session/df561a7c-cbec-44ca-bc17-a8ec089c7b24
+2026-07-29T02:39:44.941Z INFO webdriver: RESULT null

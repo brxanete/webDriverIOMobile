@@ -1,6 +1,3 @@
-import idLoginPage from '../userInterfaces/home.page.js';
-
-
 class HandleLoginAlerts {
     public async handleLoginAlerts(): Promise<void> {
         // try {

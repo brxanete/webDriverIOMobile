@@ -1,42 +1,72 @@
 import { $ } from '@wdio/globals'
+
 class permanentBarPage {
 
+    public get homeButton() {
+        return $('~Home');
+    }
+
     public get webviewButton() {
-        return $('//android.view.View[@content-desc="Webview"]');
+        return $('~Webview');
     }
 
     public get loginButton() {
-        return $('//android.view.View[@content-desc="Login"]');
+        return $('~Login');
     }
 
     public get formsButton() {
-        return $('//android.view.View[@content-desc="Forms"]');
+        return $('~Forms');
     }
 
     public get swipeButton() {
-        return $('//android.view.View[@content-desc="Swipe"]');
+        return $('~Swipe');
     }
 
     public get dragButton() {
-        return $('//android.view.View[@content-desc="Drag"]');
+        return $('~Drag');
     }
 
+    public get menuButton() {
+        return $('~Menu');
+    }
+
+    async goToHome() {
+        await this.homeButton.click();
+    }
 
     async goToWebView() {
-        await this.webviewButton.click()
-
+        await this.webviewButton.click();
     }
 
-    async validateElements(){
+    async goToLogin() {
+        await this.loginButton.click();
+    }
+
+    async goToForms() {
+        await this.formsButton.click();
+    }
+
+    async goToSwipe() {
+        await this.swipeButton.click();
+    }
+
+    async goToDrag() {
+        await this.dragButton.click();
+    }
+
+    async goToMenu() {
+        await this.menuButton.click();
+    }
+
+    async validateElements() {
+        await this.homeButton.waitForDisplayed();
         await this.webviewButton.waitForDisplayed();
         await this.loginButton.waitForDisplayed();
         await this.formsButton.waitForDisplayed();
         await this.swipeButton.waitForDisplayed();
         await this.dragButton.waitForDisplayed();
-    
+        await this.menuButton.waitForDisplayed();
     }
-
-    
 }
 
 export default new permanentBarPage();

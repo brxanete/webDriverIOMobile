@@ -1,35 +1,42 @@
 import { $ } from '@wdio/globals'
-class homePage {
-    webviewButton: any;
 
+class homePage {
+
+    public get screen() {
+        return $('~Home-screen');
+    }
 
     public get robotImage() {
         return $('//android.widget.ScrollView[@content-desc="Home-screen"]/android.view.ViewGroup/android.widget.ImageView[1]');
     }
+
     public get webDriverTitle() {
         return $('//android.widget.TextView[@text="WEBDRIVER"]');
     }
+
     public get iOLogo() {
         return $('//android.widget.ScrollView[@content-desc="Home-screen"]/android.view.ViewGroup/android.widget.ImageView[2]');
     }
+
     public get infoApp() {
-        return $('//android.widget.TextView[@text="Demo app for the appium-boilerplate"]')
-    }
-    public get appleLogo(){
-        return $('//android.widget.TextView[@text="󰀵"]')
-    }
-    public get androidLogo(){
-        return $('//android.widget.TextView[@text="󰀲"]')
-    }
-    public get supportText(){
-        return $('//android.widget.TextView[@text="Support"]')
+        return $('//android.widget.TextView[@text="Demo app for the appium-boilerplate"]');
     }
 
+    public get appleLogo() {
+        return $('//android.widget.TextView[@text="\uF0005"]');
+    }
 
-    async isOnHome(){
+    public get androidLogo() {
+        return $('//android.widget.TextView[@text="\uF0032"]');
+    }
+
+    public get supportText() {
+        return $('//android.widget.TextView[@text="Support"]');
+    }
+
+    async isOnHome() {
         await this.androidLogo.waitForDisplayed();
     }
-
 
     async validateElements() {
         await this.robotImage.waitForDisplayed();
@@ -39,13 +46,7 @@ class homePage {
         await this.appleLogo.waitForDisplayed();
         await this.androidLogo.waitForDisplayed();
         await this.supportText.waitForDisplayed();
-        
     }
-
-
-
-    }
-
- 
+}
 
 export default new homePage();

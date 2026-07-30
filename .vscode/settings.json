@@ -15,5 +15,10 @@
     "ANDROID_HOME": "${env:HOME}/Library/Android/sdk",
     "ANDROID_SDK_ROOT": "${env:HOME}/Library/Android/sdk",
     "PATH": "${env:PATH}:${env:HOME}/Library/Android/sdk/platform-tools:${env:HOME}/Library/Android/sdk/cmdline-tools/latest/bin"
+  },
+  "terminal.integrated.env.windows": {
+    "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+    "ANDROID_SDK_ROOT": "${env:LOCALAPPDATA}\\Android\\Sdk",
+    "PATH": "${env:PATH};${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\cmdline-tools\\latest\\bin"
   }
 }

@@ -1,15 +1,14 @@
 import { $ } from '@wdio/globals'
+
 class bannerPage {
 
-    public get homeBotton() {
-        return $('//android.widget.TextView[@text="Home"]');
+    public get homeButton() {
+        return $('~Home');
     }
- 
 
     async goToHome() {
-        await this.homeBotton.click();
+        await this.homeButton.click();
     }
-
 }
 
 export default new bannerPage();

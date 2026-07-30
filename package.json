@@ -18,6 +18,8 @@
   },
   "scripts": {
     "wdio": "wdio run ./wdio.conf.ts",
-    "test": "npm run wdio -- --spec ./features/login.feature"
+    "test": "npm run wdio -- --spec ./features/login.feature",
+    "test:login": "npm run wdio -- --spec ./features/login.feature",
+    "test:all": "npm run wdio"
   }
 }

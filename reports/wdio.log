@@ -1,16 +1,24 @@
-2026-07-30T02:38:59.639Z INFO @wdio/cli:launcher: Run onPrepare hook
-2026-07-30T02:38:59.657Z INFO @wdio/appium-service: Will spawn Appium process: cmd /c node C:\Repositorios\webDriverIOMobile\node_modules\appium\index.js --base-path / --port 4723
-2026-07-30T02:39:01.806Z INFO @wdio/appium-service: Appium started with ID: 35728
-2026-07-30T02:39:01.815Z INFO @wdio/cli:launcher: Run onWorkerStart hook
-2026-07-30T02:39:01.815Z INFO @wdio/xvfb: XvfbManager.init() called
-2026-07-30T02:39:01.815Z INFO @wdio/xvfb: Xvfb not needed on current platform
-2026-07-30T02:39:01.816Z INFO @wdio/local-runner: Start worker 0-0 with arg: run ./wdio.conf.ts
-2026-07-30T02:39:01.835Z INFO @wdio/xvfb:ProcessFactory: xvfb-run not found, falling back to regular fork
-2026-07-30T02:39:01.835Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=false
-2026-07-30T02:39:01.835Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
-2026-07-30T02:40:34.757Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
-2026-07-30T02:40:34.757Z INFO @wdio/cli:launcher: Run onWorkerStart hook
-2026-07-30T02:40:34.757Z INFO @wdio/local-runner: Start worker 0-1 with arg: run ./wdio.conf.ts
-2026-07-30T02:40:34.773Z INFO @wdio/xvfb:ProcessFactory: xvfb-run not found, falling back to regular fork
-2026-07-30T02:40:34.773Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=false
-2026-07-30T02:40:34.773Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+2026-08-07T04:35:15.841Z DEBUG @wdio/utils:initializeServices: initialize service "appium" as NPM package
+2026-08-07T04:35:15.876Z INFO @wdio/cli:launcher: Run onPrepare hook
+2026-08-07T04:35:15.882Z INFO @wdio/appium-service: Will spawn Appium process: node /Users/bryanplata/Documents/Repo Bryan/webDriverIOMobile/node_modules/appium/index.js --base-path / --port 4723
+2026-08-07T04:35:16.857Z INFO @wdio/appium-service: Appium started with ID: 49051
+2026-08-07T04:35:16.858Z DEBUG @wdio/cli:utils: Finished to run "onPrepare" hook in 982ms
+2026-08-07T04:35:16.859Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-08-07T04:35:16.859Z DEBUG @wdio/cli:utils: Finished to run "onWorkerStart" hook in 0ms
+2026-08-07T04:35:16.859Z INFO @wdio/xvfb: XvfbManager.init() called
+2026-08-07T04:35:16.859Z INFO @wdio/xvfb: Xvfb not needed on current platform
+2026-08-07T04:35:16.859Z INFO @wdio/local-runner: Start worker 0-0 with arg: run ./wdio.conf.ts --spec features/login.feature --logLevel trace
+2026-08-07T04:35:16.870Z INFO @wdio/xvfb:ProcessFactory: xvfb-run not found, falling back to regular fork
+2026-08-07T04:35:16.870Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=false
+2026-08-07T04:35:16.870Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+2026-08-07T04:35:16.871Z DEBUG @wdio/local-runner: Send command run to worker with cid "0-0"
+2026-08-07T04:35:16.872Z DEBUG @wdio/appium-service: Appium logs written to: /Users/bryanplata/Documents/Repo Bryan/webDriverIOMobile/reports/wdio-appium.log
+2026-08-07T04:35:24.535Z INFO @wdio/local-runner: Shutting down spawned worker
+2026-08-07T04:35:24.535Z DEBUG @wdio/local-runner: Send command endSession to worker with cid "0-0"
+2026-08-07T04:35:24.547Z ERROR @wdio/appium-service: Appium exited before timeout (exit code: null)
+2026-08-07T04:35:24.548Z DEBUG @wdio/local-runner: Runner 0-0 finished with exit code null
+2026-08-07T04:35:24.550Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+2026-08-07T04:35:24.550Z DEBUG @wdio/cli:utils: Finished to run "onWorkerEnd" hook in 0ms
+2026-08-07T04:35:24.572Z INFO @wdio/cli:launcher: Run onComplete hook
+2026-08-07T04:35:24.573Z INFO @wdio/appium-service: Killing entire Appium tree
+2026-08-07T04:35:24.618Z INFO @wdio/appium-service: Process and its children successfully terminated

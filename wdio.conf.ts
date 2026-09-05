@@ -57,10 +57,12 @@ export const config = {
     hostname: appiumHost,
     port: appiumPort,
 
-    beforeScenario: async () => {
-        await driver.terminateApp('com.wdiodemoapp');
-        await driver.activateApp('com.wdiodemoapp');
-    },
+    // Do not terminate and reactivate the app before every scenario.
+    // This can close the Appium session unexpectedly on some Android emulators.
+    // beforeScenario: async () => {
+    //     await driver.terminateApp('com.wdiodemoapp');
+    //     await driver.activateApp('com.wdiodemoapp');
+    // },
 
     specs: [
         './features/**/*.feature'

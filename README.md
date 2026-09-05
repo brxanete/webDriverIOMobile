@@ -488,3 +488,116 @@ Cada Page Object:
 4. `wdio.conf.ts` → gestiona sesión Appium, hooks, reporters
 
 No hay capa de fixtures/data factories externos; los datos se definen inline en los features (enfoque BDD puro).
+
+---
+
+## 11. Automatización interactiva con WebdriverIO MCP
+
+Además de ejecutar la suite BDD, este proyecto puede automatizarse de forma **interactiva** desde un asistente de IA (opencode) mediante el servidor MCP de WebdriverIO (`@wdio/mcp`). Esto permite lanzar `DriverIO.apk`, tocar botones, hacer swipe y capturar evidencias con instrucciones en lenguaje natural, sin escribir steps de Cucumber.
+
+### Arquitectura del stack
+
+```
+Asistente IA (opencode) → @wdio/mcp → WebDriverIO → Appium → Dispositivo
+```
+
+- El servidor MCP actúa de puente entre el asistente y el dispositivo.
+- **Sesión única**: solo un navegador o app activa a la vez; el estado se mantiene entre llamadas.
+- Las sesiones con `noReset: true` se desvinculan solas al cerrar (auto-detach).
+- Los errores se devuelven como texto **sin perder el estado de la sesión**, así puedes encadenar intentos sin reiniciar.
+
+### Configuración en opencode
+
+El servidor se ejecuta con `npx` (sin instalación local). Para que opencode lo cargue en todos tus proyectos, agrégalo a tu config global `~/.config/opencode/opencode.jsonc`:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "wdio-mcp": {
+      "type": "local",
+      "command": ["npx", "-y", "@wdio/mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+> Reinicia opencode tras guardar la configuración y verifica la conexión con `opencode mcp list`.
+> La primera descarga de `npx @wdio/mcp` puede superar los 30 s de timeout: precárgala una vez con `npx -y @wdio/mcp`.
+
+### Conexión con Appium
+
+El servidor MCP se conecta a Appium mediante estas variables de entorno:
+
+| Variable | Default | Propósito |
+|---|---|---|
+| `APPIUM_URL` | `127.0.0.1` | Host de Appium |
+| `APPIUM_URL_PORT` | `4723` | Puerto de Appium |
+| `APPIUM_PATH` | `/` | Ruta base |
+
+En este proyecto Appium suele correr en el puerto `4724`. Para que el MCP lo reutilice:
+
+```bash
+export APPIUM_URL_PORT=4724
+appium --port 4724
+```
+
+### Estado listo para automatizar (checklist)
+
+```bash
+appium --version                    # 2.19.0 ✓
+appium driver list --installed      # uiautomator2 ✓
+adb devices                         # emulator-5554 device ✓
+```
+
+Emulador encendido + Appium corriendo + opencode con el MCP conectado = ya puedes pedirle al asistente que controle la app.
+
+### Herramientas principales (movil)
+
+| Herramienta | Descripción |
+|---|---|
+| `start_session` | Inicia una app en iOS/Android con su APK/IPA |
+| `tap_element` | Toca un elemento o coordenadas |
+| `swipe` | Desliza en una dirección |
+| `drag_and_drop` | Arrastra y suelta |
+| `get_app_state` | Comprueba el estado de la app |
+| `get_contexts` / `switch_context` | Cambio nativo ↔ WebView en apps híbridas |
+| `rotate_device` | Rota a vertical/horizontal |
+| `set_geolocation` / `set_value` | Fija GPS / escribe texto |
+| `hide_keyboard` | Oculta el teclado |
+| `get_screenshot` | Captura optimizada (máx. 1 MB) |
+| `get_elements` | Elementos visibles/interactuables |
+| `execute_script` | Comandos móviles de Appium (`mobile: pressKey`, `deepLink`, `shell`) |
+
+### Selectores
+
+Prioriza siempre el **Accessibility ID** (`~`), el mismo que usa este proyecto. Es multiplataforma y el más estable.
+
+```
+~Login-screen        → Login screen   (Accessibility ID)
+~input-email         → Campo email
+android=new UiSelector().text("Login")   → UiAutomator (Android)
+-ios predicate string:label == "Login"   → iOS Predicate
+//XCUIElementTypeButton[@label="Login"]  → XPath
+```
+
+### Flujo de ejemplo con tu APK
+
+1. Enciende emulador y Appium (checklist de arriba).
+2. En opencode pide: *"Inicia la app `DriverIO.apk` en el emulador Android"* → `start_session`.
+3. Interactúa: *"Toca el botón de login"* → `tap_element` · *"Escribe 'demo' en el campo email"* → `set_value` · *"Haz swipe hacia arriba"* → `swipe`.
+4. Evidencia: *"Toma un screenshot"* → `get_screenshot` · *"Muéstrame los elementos visibles"* → `get_elements`.
+
+### Buenas prácticas
+
+- Sesión única: cierra la sesión antes de cambiar de blanco.
+- Apps híbridas (nativo + WebView): lista los contextos con `get_contexts` y cambia con `switch_context`.
+- El servidor consume tokens del contexto de la IA: sé selectivo con los MCPs habilitados.
+
+### Documentación oficial
+
+- MCP WebdriverIO: <https://webdriver.io/docs/mcp>
+- Configuración: <https://webdriver.io/docs/mcp/configuration>
+- Especificación MCP: <https://modelcontextprotocol.io>
+- Repositorio: <https://github.com/webdriverio/mcp> · Paquete: `@wdio/mcp`

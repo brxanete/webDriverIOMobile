@@ -22,7 +22,52 @@
     {
       "label": "WDIO: Run login feature",
       "type": "shell",
-      "command": "npm run wdio -- --spec ./features/login.feature",
+      "command": "npx wdio run ./wdio.conf.ts --spec ./features/login.feature",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "WDIO: Run forms feature",
+      "type": "shell",
+      "command": "npx wdio run ./wdio.conf.ts --spec ./features/forms.feature",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "WDIO: Run swipe feature",
+      "type": "shell",
+      "command": "npx wdio run ./wdio.conf.ts --spec ./features/swipe.feature",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "WDIO: Run drag feature",
+      "type": "shell",
+      "command": "npx wdio run ./wdio.conf.ts --spec ./features/drag.feature",
       "options": {
         "cwd": "${workspaceFolder}"
       },

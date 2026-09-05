@@ -1,8 +1,0 @@
-2026-08-07T04:35:17.266Z INFO @wdio/local-runner: Run worker command: run
-2026-08-07T04:35:17.276Z DEBUG @wdio/runner: init remote session
-2026-08-07T04:35:17.277Z DEBUG @wdio/utils:initializeServices: initialize service "appium" as NPM package
-2026-08-07T04:35:17.301Z DEBUG @wdio/utils:shim: Finished to run "beforeSession" hook in 0ms
-2026-08-07T04:35:17.603Z DEBUG @wdio/runner: init remote session
-2026-08-07T04:35:17.604Z INFO webdriver: Initiate new session using the WebDriver protocol
-2026-08-07T04:35:17.605Z INFO @wdio/utils: Connecting to existing driver at http://127.0.0.1:4723/
-2026-08-07T04:35:17.610Z INFO webdriver: [POST] http://127.0.0.1:4723/session

@@ -20,6 +20,9 @@
     "wdio": "wdio run ./wdio.conf.ts",
     "test": "npm run wdio -- --spec ./features/login.feature",
     "test:login": "npm run wdio -- --spec ./features/login.feature",
+    "test:forms": "npm run wdio -- --spec ./features/forms.feature",
+    "test:swipe": "npm run wdio -- --spec ./features/swipe.feature",
+    "test:drag": "npm run wdio -- --spec ./features/drag.feature",
     "test:all": "npm run wdio"
   }
 }

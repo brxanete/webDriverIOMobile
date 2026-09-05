@@ -1,0 +1,7 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","295","When El usuario va a la sección de webview","","2026-07-28","passed","2026-07-28","","Validaciones visuales: Regresion CP","",""
+"","1","","","2026-07-28","passed","2026-07-28","","Validaciones visuales: Regresion CP","",""
+"","531","When El usuario valida los elementos visuales","","2026-07-28","passed","2026-07-28","","Validaciones visuales: Regresion CP","",""
+"","2955","And El usuario cierra el anuncio","","2026-07-28","passed","2026-07-28","","Validaciones visuales: Regresion CP","",""
+"","1112","Given El usuario esta en la página de inicio","","2026-07-28","passed","2026-07-28","","Validaciones visuales: Regresion CP","",""
+"","3258","And El usuario va a la pagina de get started","","2026-07-28","passed","2026-07-28","","Validaciones visuales: Regresion CP","",""

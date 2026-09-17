@@ -1,12 +1,4 @@
 {
-  "testing.automaticallyOpenTestResults": "never",
-  "testing.openTesting": "never",
-  "testing.defaultGutterClickAction": "run",
-  "files.associations": {
-    "*.feature": "feature"
-  },
-  "cucumber.glue": [],
-  "cucumber.features": [],
   "terminal.integrated.env.osx": {
     "ANDROID_HOME": "${env:HOME}/Library/Android/sdk",
     "ANDROID_SDK_ROOT": "${env:HOME}/Library/Android/sdk",

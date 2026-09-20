@@ -8,6 +8,7 @@ const androidPlatformVersion = process.env.ANDROID_PLATFORM_VERSION || '';
 const appiumHost = process.env.APPIUM_HOST || '127.0.0.1';
 const appiumPort = Number(process.env.APPIUM_PORT || 4724);
 const isCI = Boolean(process.env.CI);
+const enableAllure = process.env.ALLURE_REPORT === '1';
 
 const candidateSdkPaths = [
     process.env.ANDROID_HOME,
@@ -57,13 +58,15 @@ export const config = {
     hostname: appiumHost,
     port: appiumPort,
 
-    beforeScenario: async () => {
-        await driver.terminateApp('com.wdiodemoapp');
-        await driver.activateApp('com.wdiodemoapp');
-    },
+    // Do not terminate and reactivate the app before every test.
+    // This can close the Appium session unexpectedly on some Android emulators.
+    // beforeEach: async () => {
+    //     await driver.terminateApp('com.wdiodemoapp');
+    //     await driver.activateApp('com.wdiodemoapp');
+    // },
 
     specs: [
-        './features/**/*.feature'
+        './features/specs/**/*.spec.ts'
     ],
 
     exclude: [],
@@ -99,22 +102,18 @@ export const config = {
 
     specFileRetriesDelay: 0,
 
-    framework: 'cucumber',
+    framework: 'mocha',
 
-    reporters: ['spec'],
+    reporters: enableAllure
+        ? ['spec', ['allure', {
+            outputDir: 'allure-results',
+            disableWebdriverStepsReporting: true,
+            disableWebdriverScreenshotsReporting: false
+        }]]
+        : ['spec'],
 
-    cucumberOpts: {
-        require: ['./features/step-definitions/**/*.ts'],
-        requireModule: ['tsx'],
-        backtrace: false,
-        dryRun: false,
-        failFast: false,
-        name: [],
-        snippets: true,
-        source: true,
-        strict: false,
-        tagExpression: '',
-        timeout: 60000,
-        ignoreUndefinedDefinitions: false
+    mochaOpts: {
+        ui: 'bdd',
+        timeout: 60000
     },
 }

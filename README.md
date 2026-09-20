@@ -1,36 +1,28 @@
 # WebDriverIO Mobile Automation Project
 
-Suite de pruebas automatizadas E2E para Android usando **WebDriverIO 9**, **Cucumber BDD**, **Appium 2** y **TypeScript**. Compatible con Windows y macOS.
+Suite de pruebas automatizadas E2E para Android usando **WebDriverIO 9**, **Mocha BDD**, **Appium 2** y **TypeScript**. Compatible con Windows y macOS, integrable con el **Test Explorer de VS Code**.
 
 ## Arquitectura del proyecto
 
 ```
 webDriverIOMobile/
 ├── features/
-│   ├── step-definitions/          # Implementación de pasos Gherkin
-│   │   ├── loginSteps.ts          #   Pasos Login (CP-001 al CP-008)
-│   │   ├── formsSteps.ts          #   Pasos Forms (CP-009 al CP-014)
-│   │   ├── swipeSteps.ts          #   Pasos Swipe (CP-015 al CP-018)
-│   │   ├── dragSteps.ts           #   Pasos Drag (CP-019 al CP-022)
-│   │   └── elementValidationStep.ts # Pasos Home/WebView
-│   ├── userInterfaces/            # Page Objects (Patrón Page Object Model)
-│   │   ├── home.page.ts           #   Home screen (~Home-screen)
-│   │   ├── login.page.ts          #   Login/SignUp (~Login-screen)
-│   │   ├── forms.page.ts          #   Forms (~Forms-screen)
-│   │   ├── swipe.page.ts          #   Swipe carousel (~Swipe-screen)
-│   │   ├── drag.page.ts           #   Drag puzzle (~Drag-drop-screen)
-│   │   ├── permanentBar.page.ts   #   Bottom navigation bar
-│   │   ├── webView.page.ts        #   WebView
-│   │   └── banner.page.ts         #   Banner
-│   ├── exceptions/
-│   │   └── handleLoginAlerts.ts   #   Manejo de alertas (placeholder)
-│   ├── login.feature              # 8 escenarios: login/signup
-│   ├── forms.feature              # 6 escenarios: input, switch, dropdown
-│   ├── swipe.feature              # 5 escenarios: carrusel
-│   └── drag.feature               # 4 escenarios: puzzle drag & drop
+│   ├── specs/                     # Casos de prueba Mocha (describe/it)
+│   │   ├── login.spec.ts          #   Login (CP-001 al CP-008 + smoke)
+│   │   ├── forms.spec.ts          #   Forms (CP-009 al CP-014 + smoke)
+│   │   ├── swipe.spec.ts          #   Swipe (CP-015 al CP-018 + smoke)
+│   │   ├── drag.spec.ts           #   Drag (CP-019 al CP-022 + smoke)
+│   │   └── home.spec.ts           #   Home/WebView
+│   └── userInterfaces/            # Page Objects (Patrón Page Object Model)
+│       ├── home.page.ts           #   Home screen (~Home-screen)
+│       ├── login.page.ts          #   Login/SignUp (~Login-screen)
+│       ├── forms.page.ts          #   Forms (~Forms-screen)
+│       ├── swipe.page.ts          #   Swipe carousel (~Swipe-screen)
+│       ├── drag.page.ts           #   Drag puzzle (~Drag-drop-screen)
+│       ├── permanentBar.page.ts   #   Bottom navigation bar
+│       └── webView.page.ts        #   WebView
 ├── .vscode/
-│   ├── settings.json              # Config multiplataforma (OS vars)
-│   └── tasks.json                 # Tareas VS Code
+│   └── settings.json              # Config multiplataforma (OS vars)
 ├── DriverIO.apk                   # APK de la app bajo prueba
 ├── wdio.conf.ts                   # Config principal con detección OS
 ├── tsconfig.json                  # TypeScript: ESNext, ESM, strict
@@ -43,12 +35,14 @@ webDriverIOMobile/
 | Componente | Versión |
 |---|---|
 | WebDriverIO | ~9.30 |
-| Cucumber | ~9.30 (framework) |
+| Mocha (framework) | ~9.30 |
 | Appium | ~2.5 |
 | UIAutomator2 | ~3.5 |
 | TypeScript | ~7.0 |
 | Node.js | >=20 |
 | Reporter | spec + allure (opcional) |
+
+> **`@testing-library/webdriverio`** (`~3.2.1`) se mantiene como dependencia para escalabilidad futura: testes de **componentes web** (`@wdio/browser-runner`), pruebas **Web** E2E o validación de **WebViews**. La E2E nativa Android actual no lo usa; se resuelve con Page Objects y `accessibility id` (sección siguiente).
 
 ### Estrategia de localización de elementos
 
@@ -197,24 +191,23 @@ capabilities: [{
 ### 3.4 Lifecycle hooks
 
 ```typescript
-beforeScenario: async () => {
+beforeEach: async () => {
     await driver.terminateApp('com.wdiodemoapp');
     await driver.activateApp('com.wdiodemoapp');
 }
 ```
 
-Este hook se ejecuta antes de cada escenario de Cucumber. Reinicia la aplicación (termina y relanza) para garantizar un estado limpio y aislado entre escenarios, evitando efectos colaterales de pruebas anteriores (ej: sesiones iniciadas, datos persistentes).
+Hook (comentado en el config) que reinicia la aplicación antes de cada test. Garantiza un estado limpio y aislado entre tests, evitando efectos colaterales (ej: sesiones iniciadas). Está deshabilitado porque puede cerrar la sesión de Appium en algunos emuladores. La navegación entre pantallas se hace con `beforeEach` dentro de cada archivo de specs.
 
-### 3.5 Cucumber Options
+### 3.5 Mocha Options
 
 | Opción | Valor | Propósito |
 |---|---|---|
-| `require` | `./features/step-definitions/**/*.ts` | Carga automática de todos los steps |
-| `requireModule` | `['tsx']` | Transpilación TypeScript en ESM |
-| `timeout` | `60000` | Timeout por step (60s) |
-| `tagExpression` | `''` | Filtro por tags (@smoke, @positive, etc.) |
+| `ui` | `bdd` | Interface `describe` / `it` de Mocha |
+| `timeout` | `60000` | Timeout por test (60s) |
+| `grep` | `''` | Filtro por nombre de test (regex) desde CLI |
 
-Nota: Se usa `tsx` en lugar de `ts-node` por compatibilidad con `"type": "module"` (ESM puro).
+Nota: la transpilación de TypeScript (ESM puro con `"type": "module"`) la resuelve automáticamente el CLI de WebdriverIO v9 vía `tsx`, por lo que no es necesario configurar `requireModule` ni `require`.
 
 ---
 
@@ -284,75 +277,83 @@ Con Appium corriendo, abrir Appium Inspector y configurar:
 
 | Comando | Descripción |
 |---|---|
-| `npm run wdio` | Ejecuta todos los `.feature` |
-| `npm run test` | Ejecuta `login.feature` |
-| `npm run test:login` | Ejecuta `login.feature` |
+| `npm run wdio` | Ejecuta todos los `.spec.ts` |
+| `npm run test` | Ejecuta `login.spec.ts` |
+| `npm run test:login` | Ejecuta `login.spec.ts` |
+| `npm run test:forms` | Ejecuta `forms.spec.ts` |
+| `npm run test:swipe` | Ejecuta `swipe.spec.ts` |
+| `npm run test:drag` | Ejecuta `drag.spec.ts` |
+| `npm run test:home` | Ejecuta `home.spec.ts` |
+| `npm run test:smoke` | Ejecuta solo las validaciones visuales (grep) |
 | `npm run test:all` | Ejecuta toda la suite |
 
-### 5.2 Filtrado por tags (Cucumber)
+### 5.2 Filtrado con Mocha grep
+
+Con Mocha los tests se filtran por nombre (regex) con `--mochaOpts.grep`:
 
 ```bash
-# Solo smoke tests
-npx wdio run ./wdio.conf.ts --cucumberOpts.tagExpression '@smoke'
+# Solo validaciones visuales (smoke)
+npx wdio run ./wdio.conf.ts --mochaOpts.grep "Validación visual"
 
-# Solo tests positivos
-npx wdio run ./wdio.conf.ts --cucumberOpts.tagExpression '@positive'
+# Solo tests positivos (por ID de caso de prueba)
+npx wdio run ./wdio.conf.ts --mochaOpts.grep "\[CP-001\]"
 
-# Excluir drag
-npx wdio run ./wdio.conf.ts --cucumberOpts.tagExpression 'not @drag'
+# Excluir una categoría (invertir el grep)
+npx wdio run ./wdio.conf.ts --mochaOpts.invert --mochaOpts.grep "Arrastrar"
 
-# Combinación
-npx wdio run ./wdio.conf.ts --cucumberOpts.tagExpression '@regression and not @negative'
+# Combinación de specs con filtro
+npx wdio run ./wdio.conf.ts --spec ./features/specs/login.spec.ts --mochaOpts.grep "CP-003|CP-004"
 ```
 
-### 5.3 Features por separado
+### 5.3 Specs por separado
 
 ```bash
-npx wdio run ./wdio.conf.ts --spec ./features/forms.feature
-npx wdio run ./wdio.conf.ts --spec ./features/swipe.feature
-npx wdio run ./wdio.conf.ts --spec ./features/drag.feature
+npx wdio run ./wdio.conf.ts --spec ./features/specs/forms.spec.ts
+npx wdio run ./wdio.conf.ts --spec ./features/specs/swipe.spec.ts
+npx wdio run ./wdio.conf.ts --spec ./features/specs/drag.spec.ts
 ```
 
-### 5.4 Dry run (validar steps sin ejecutar)
+### 5.4 Un solo test (durante desarrollo)
 
-```bash
-npx wdio run ./wdio.conf.ts --cucumberOpts.dryRun=true
-```
+Dentro de un archivo de specs puedes usar `it.only(...)` para ejecutar solo ese test o `it.skip(...)` para omitirlo. También puedes filtrar por nombre desde CLI (sección 5.2).
 
 ---
 
 ## 6. Escenarios de prueba (ISTQB)
 
-| ID | Feature | Tipo | Tags |
+| ID | Feature | Tipo | `it()` en |
 |---|---|---|---|
-| CP-001 | Login | Positive login | `@smoke @positive @login-success` |
-| CP-002 | Login | Positive signup | `@positive @signup-success` |
-| CP-003 | Login | Negative (email vacío) | `@negative @login-validation` |
-| CP-004 | Login | Negative (password vacía) | `@negative @login-validation` |
-| CP-005 | Login | Negative (ambos vacíos) | `@negative @login-validation` |
-| CP-006 | Login | Negative (passwords mismatch) | `@negative @signup-validation` |
-| CP-007 | Login | Negative (email inválido) | `@negative @signup-validation` |
-| CP-008 | Login | Edge case (alternar tabs) | `@edge-case @boundary` |
-| CP-009 | Forms | Positive (texto) | `@positive` |
-| CP-010 | Forms | Positive (caracteres especiales) | `@positive` |
-| CP-011 | Forms | Positive (switch on/off) | `@positive` |
-| CP-012 | Forms | Positive (limpiar campo) | `@positive` |
-| CP-013 | Forms | Dropdown (3 opciones) | `@positive @dropdown` |
-| CP-014 | Forms | Interacción completa | `@edge-case` |
-| CP-015 | Swipe | Swipe left | `@positive @carousel` |
-| CP-016 | Swipe | Swipe right | `@positive @carousel` |
-| CP-017 | Swipe | Navegar todas las tarjetas | `@positive @carousel` |
-| CP-018 | Swipe | Logo visible | `@positive` |
-| CP-019 | Drag | Pieza a zona correcta | `@positive @puzzle` |
-| CP-020 | Drag | Puzzle completo | `@positive @puzzle` |
-| CP-021 | Drag | Botón Renew | `@positive @reset` |
-| CP-022 | Drag | Pieza a zona incorrecta | `@negative` |
+| CP-001 | Login | Positive login | `login.spec.ts` |
+| CP-002 | Login | Positive signup | `login.spec.ts` |
+| CP-003 | Login | Negative (email vacío) | `login.spec.ts` |
+| CP-004 | Login | Negative (password vacía) | `login.spec.ts` |
+| CP-005 | Login | Negative (ambos vacíos) | `login.spec.ts` |
+| CP-006 | Login | Negative (passwords mismatch) | `login.spec.ts` |
+| CP-007 | Login | Negative (email inválido) | `login.spec.ts` |
+| CP-008 | Login | Edge case (alternar tabs) | `login.spec.ts` |
+| CP-009 | Forms | Positive (texto) | `forms.spec.ts` |
+| CP-010 | Forms | Positive (caracteres especiales) | `forms.spec.ts` |
+| CP-011 | Forms | Positive (switch on/off) | `forms.spec.ts` |
+| CP-012 | Forms | Positive (limpiar campo) | `forms.spec.ts` |
+| CP-013 | Forms | Dropdown (3 opciones) | `forms.spec.ts` |
+| CP-014 | Forms | Interacción completa | `forms.spec.ts` |
+| CP-015 | Swipe | Swipe left | `swipe.spec.ts` |
+| CP-016 | Swipe | Swipe right | `swipe.spec.ts` |
+| CP-017 | Swipe | Navegar todas las tarjetas | `swipe.spec.ts` |
+| CP-018 | Swipe | Logo visible | `swipe.spec.ts` |
+| CP-019 | Drag | Pieza a zona correcta | `drag.spec.ts` |
+| CP-020 | Drag | Puzzle completo | `drag.spec.ts` |
+| CP-021 | Drag | Botón Renew | `drag.spec.ts` |
+| CP-022 | Drag | Pieza a zona incorrecta | `drag.spec.ts` |
 
-**Total: 22 escenarios** distribuidos en:
-- **Smoke**: 4 (una validación visual por feature)
-- **Positive**: 13
-- **Negative**: 5
-- **Edge case / Boundary**: 2
+**Total: 31 tests en la suite**
+- **Smoke visual**: 4 (una validación visual por feature: login, forms, swipe, drag)
+- **Positive**: 16 (13 CP + 3 variantes del dropdown CP-013)
+- **Negative**: 6 (CP-003 al CP-007 y CP-022)
+- **Edge case / Boundary**: 2 (CP-008 y CP-014)
+- **Home / WebView**: 3 (pantalla de inicio, cierre de anuncio, Get Started)
+
+Los IDs `[CP-NNN]` se conservan en el nombre de cada `it()` para trazabilidad con la gestión de casos de prueba.
 
 ---
 
@@ -360,29 +361,25 @@ npx wdio run ./wdio.conf.ts --cucumberOpts.dryRun=true
 
 ### 7.1 Spec reporter (consola)
 
-Por defecto usa `['spec']` que muestra resultados en consola con detalle de steps pasados/fallidos.
+Por defecto usa `['spec']` que muestra resultados en consola con detalle de tests pasados/fallidos.
 
 ### 7.2 Allure reporter (opcional)
 
-Instalado como dependencia (`@wdio/allure-reporter`). Para habilitarlo:
+Instalado como dependencia (`@wdio/allure-reporter`). Se activa por variable de entorno `ALLURE_REPORT=1` (por defecto los reportes usan solo `spec`):
 
-```typescript
-// En wdio.conf.ts:
-reporters: ['spec', ['allure', {
-    outputDir: 'allure-results',
-    disableWebdriverStepsReporting: true,
-    disableWebdriverScreenshotsReporting: false
-}]]
-```
-
-Genera reportes en `allure-results/`. Para visualizar:
 ```bash
+# Ejecutar la suite generando resultados Allure en allure-results/
+ALLURE_REPORT=1 npm run test:all
+
+# Generar y visualizar el reporte HTML
 npx allure serve allure-results
 ```
 
+Para ver la configuración del reporter activada vía env, consulta `reporters` en `wdio.conf.ts`.
+
 ### 7.3 Capturas de pantalla
 
-El hook `afterStep` captura automáticamente screenshots cuando un step pasa o falla.
+El hook `afterTest` captura automáticamente screenshots cuando un test pasa o falla.
 
 ---
 
@@ -390,23 +387,23 @@ El hook `afterStep` captura automáticamente screenshots cuando un step pasa o f
 
 ### `Cannot read properties of undefined (reading 'fileExists')`
 
-- **Causa**: Config inválida en `reporters` (ej: Allure con opciones incorrectas) o en `services`
+- **Causa**: Config inválida en `reporters` (ej: reporter con opciones incorrectas) o en `services`
 - **Solución**: Simplificar reporters a `['spec']` y services a `['appium']`
 
 ### `Can't call click on element with selector "~Login" because element wasn't found`
 
 - **Causa**: La app quedó en un estado posterior a un login exitoso y la bottom bar cambió
-- **Solución**: El hook `beforeScenario` ya ejecuta `terminateApp` + `activateApp` para reiniciar la app
+- **Solución**: Activar el hook `beforeEach` (sección 3.4) para reiniciar la app entre tests
 
 ### `Error: expect(received).toBe(expected) – Expected: true, Received: false` (Drag)
 
 - **Causa**: La pieza no se posicionó exactamente sobre la zona esperada. El `isPieceInZone` usa distancia euclidiana < 50px
 - **Solución**: Ajustar coordenadas o tolerancia en `drag.page.ts`
 
-### `Error: Cannot find module 'ts-node/register/transpile-only'`
+### `Cannot find module` al ejecutar tests `.ts`
 
-- **Causa**: Usar `ts-node` en proyecto ESM (`"type": "module"`)
-- **Solución**: Cambiar a `requireModule: ['tsx']` (ya configurado en el proyecto)
+- **Causa**: Ejecutar los tests fuera del runner de WebdriverIO (ej: con Mocha a secas)
+- **Solución**: Ejecuta siempre con `wdio run ./wdio.conf.ts` (vía scripts npm o la extensión oficial de VS Code). WebdriverIO v9 transpila TS con `tsx` automáticamente
 
 ### APK no encontrado
 
@@ -426,22 +423,49 @@ npx appium --port 4724 --use-drivers uiautomator2
 
 ---
 
-## 9. VS Code
+## 9. VS Code y Test Explorer
 
-### Extensiones recomendadas
+### 9.1 Extensión oficial de WebdriverIO (recomendada)
 
-- **Cucumber (Gherkin) Full Support** — resaltado de sintaxis .feature
+Instala **WebdriverIO** desde el Visual Studio Marketplace (identificador `webdriverio.vscode-webdriverio`). Es la extensión oficial publicada por el equipo de WebdriverIO y usa las APIs de `TestController` de VS Code (≥ 1.96) para ofrecer el **Test Explorer / Testing view** nativo.
+
+Requisitos:
+- Visual Studio Code >= 1.96.0
+- WebdriverIO >= v9.0.0
+- Existe un archivo de config con el patrón `*wdio*.conf*.{ts,js,mjs,cjs}` en el workspace (`wdio.conf.ts` → lo detecta automáticamente)
+
+Funcionalidades:
+- **Testing view**: lista todos los tests, con estados passed / failed / skipped
+- **Run / Debug** individual: el icono ▶ junto a cada `it()` ejecuta solo ese test con el runner real de WebdriverIO (Appium incluido)
+- **Run all / Refresh**: botones en la barra lateral
+- Soporta todos los frameworks que soporta WebdriverIO (aquí, Mocha)
+
+> A diferencia de la extensión genérica "Mocha Test Explorer", esta extensión lanza **WebdriverIO en sí** para ejecutar el test, por lo que el `browser`, `$`, `expect` y la sesión de Appium están disponibles.
+
+### 9.2 Estructura del archivo de specs
+
+La extensión descubre los tests a partir de los bloques `describe` / `it` de los archivos `.spec.ts`:
+
+```typescript
+import { expect } from '@wdio/globals';
+import loginPage from '../userInterfaces/login.page.ts';
+
+describe('Login', () => {
+    it('[CP-001] Inicio de sesión exitoso', async () => {
+        await loginPage.enterEmail('test@example.com');
+        await loginPage.tapLoginButton();
+        await expect(loginPage.loginButton).not.toBeDisplayed();
+    });
+});
+```
+
+### 9.3 Otras extensiones recomendadas
+
 - **GitLens** — navegación de código
 - **TypeScript + JavaScript** (built-in)
+- (**Opcional**) Mocha Test Explorer — solo para descubrir los tests; la ejecución de E2E debe hacerse con la extensión oficial de WebdriverIO
 
-### Tasks disponibles
-
-| Task | Descripción |
-|---|---|
-| `WDIO: Run all tests` | Ejecuta toda la suite |
-| `WDIO: Run login feature` | Ejecuta solo login.feature |
-
-### Config de terminal
+### 9.4 Config de terminal
 
 El archivo `.vscode/settings.json` configura variables de entorno específicas por OS:
 
@@ -465,12 +489,11 @@ El archivo `.vscode/settings.json` configura variables de entorno específicas p
 
 ### Nomenclatura
 
-- **Feature files**: `nombre.feature` (inglés, snake_case)
+- **Specs**: `nombre.spec.ts` (inglés, camelCase) → `login.spec.ts`, `forms.spec.ts`
 - **Page objects**: `nombre.page.ts` (inglés, camelCase)
-- **Step definitions**: `nombreSteps.ts` (inglés, camelCase)
-- **Tags**: `@categoria` (inglés, lowercase)
-- **Gherkin**: Steps en español, keywords en inglés (Given/When/Then)
-- **IDs de escenario**: `[CP-NNN]` (Caso de Prueba numerado)
+- **Describe**: feature o pantalla (ej: `describe('Login - Inicio de sesión y registro')`)
+- **It**: un escenario/caso con su ID (`[CP-NNN] Descripción`)
+- **IDs de caso de prueba**: `[CP-NNN]` (Caso de Prueba numerado), conservados de la versión Cucumber
 
 ### Estructura de Page Objects
 
@@ -482,9 +505,134 @@ Cada Page Object:
 
 ### Flujo de datos
 
-1. `feature` → escenario Gherkin con datos hardcodeados o Examples
-2. `step-definition` → recibe strings, llama al Page Object
+1. `spec` → `describe` / `it` con datos hardcodeados o data providers (loop sobre un array)
+2. `it()` → secuencia de pasos que llaman al Page Object
 3. `page object` → interactúa con `browser`/`$` via WebdriverIO API
 4. `wdio.conf.ts` → gestiona sesión Appium, hooks, reporters
 
-No hay capa de fixtures/data factories externos; los datos se definen inline en los features (enfoque BDD puro).
+No hay capa de fixtures/data factories externos; los datos se definen inline en los specs.
+
+### Equivalencias Cucumber → Mocha
+
+| Cucumber | Mocha |
+|---|---|
+| `.feature` + `step-definitions` | `.spec.ts` con `describe` / `it` |
+| `Background` | `beforeEach()` |
+| `Scenario Outline` + `Examples` | Loop sobre un array dentro del `describe` |
+| Tag `@smoke` | Filtro `--mochaOpts.grep` |
+| `Given/When/Then(...)` steps | Métodos del Page Object invocados en el `it()` |
+| `beforeScenario` hook | `beforeEach` hook de wdio |
+
+---
+
+## 11. Automatización interactiva con WebdriverIO MCP
+
+Además de ejecutar la suite Mocha, este proyecto puede automatizarse de forma **interactiva** desde un asistente de IA (opencode) mediante el servidor MCP de WebdriverIO (`@wdio/mcp`). Esto permite lanzar `DriverIO.apk`, tocar botones, hacer swipe y capturar evidencias con instrucciones en lenguaje natural, sin escribir specs de Mocha. Ver la guía completa en `Guia-MCP-WebdriverIO-Appium.md`.
+
+### Arquitectura del stack
+
+```
+Asistente IA (opencode) → @wdio/mcp → WebDriverIO → Appium → Dispositivo
+```
+
+- El servidor MCP actúa de puente entre el asistente y el dispositivo.
+- **Sesión única**: solo un navegador o app activa a la vez; el estado se mantiene entre llamadas.
+- Las sesiones con `noReset: true` se desvinculan solas al cerrar (auto-detach).
+- Los errores se devuelven como texto **sin perder el estado de la sesión**, así puedes encadenar intentos sin reiniciar.
+
+### Configuración en opencode
+
+El servidor se ejecuta con `npx` (sin instalación local). Para que opencode lo cargue en todos tus proyectos, agrégalo a tu config global `~/.config/opencode/opencode.jsonc`:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "wdio-mcp": {
+      "type": "local",
+      "command": ["npx", "-y", "@wdio/mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+> Reinicia opencode tras guardar la configuración y verifica la conexión con `opencode mcp list`.
+> La primera descarga de `npx @wdio/mcp` puede superar los 30 s de timeout: precárgala una vez con `npx -y @wdio/mcp`.
+
+### Conexión con Appium
+
+El servidor MCP se conecta a Appium mediante estas variables de entorno:
+
+| Variable | Default | Propósito |
+|---|---|---|
+| `APPIUM_URL` | `127.0.0.1` | Host de Appium |
+| `APPIUM_URL_PORT` | `4723` | Puerto de Appium |
+| `APPIUM_PATH` | `/` | Ruta base |
+
+En este proyecto Appium suele correr en el puerto `4724`. Para que el MCP lo reutilice:
+
+```bash
+export APPIUM_URL_PORT=4724
+appium --port 4724
+```
+
+### Estado listo para automatizar (checklist)
+
+```bash
+appium --version                    # 2.19.0 ✓
+appium driver list --installed      # uiautomator2 ✓
+adb devices                         # emulator-5554 device ✓
+```
+
+Emulador encendido + Appium corriendo + opencode con el MCP conectado = ya puedes pedirle al asistente que controle la app.
+
+### Herramientas principales (movil)
+
+| Herramienta | Descripción |
+|---|---|
+| `start_session` | Inicia una app en iOS/Android con su APK/IPA |
+| `tap_element` | Toca un elemento o coordenadas |
+| `swipe` | Desliza en una dirección |
+| `drag_and_drop` | Arrastra y suelta |
+| `get_app_state` | Comprueba el estado de la app |
+| `get_contexts` / `switch_context` | Cambio nativo ↔ WebView en apps híbridas |
+| `rotate_device` | Rota a vertical/horizontal |
+| `set_geolocation` / `set_value` | Fija GPS / escribe texto |
+| `hide_keyboard` | Oculta el teclado |
+| `get_screenshot` | Captura optimizada (máx. 1 MB) |
+| `get_elements` | Elementos visibles/interactuables |
+| `execute_script` | Comandos móviles de Appium (`mobile: pressKey`, `deepLink`, `shell`) |
+
+### Selectores
+
+Prioriza siempre el **Accessibility ID** (`~`), el mismo que usa este proyecto. Es multiplataforma y el más estable.
+
+```
+~Login-screen        → Login screen   (Accessibility ID)
+~input-email         → Campo email
+android=new UiSelector().text("Login")   → UiAutomator (Android)
+-ios predicate string:label == "Login"   → iOS Predicate
+//XCUIElementTypeButton[@label="Login"]  → XPath
+```
+
+### Flujo de ejemplo con tu APK
+
+1. Enciende emulador y Appium (checklist de arriba).
+2. En opencode pide: *"Inicia la app `DriverIO.apk` en el emulador Android"* → `start_session`.
+3. Interactúa: *"Toca el botón de login"* → `tap_element` · *"Escribe 'demo' en el campo email"* → `set_value` · *"Haz swipe hacia arriba"* → `swipe`.
+4. Evidencia: *"Toma un screenshot"* → `get_screenshot` · *"Muéstrame los elementos visibles"* → `get_elements`.
+
+### Buenas prácticas
+
+- Sesión única: cierra la sesión antes de cambiar de blanco.
+- Apps híbridas (nativo + WebView): lista los contextos con `get_contexts` y cambia con `switch_context`.
+- El servidor consume tokens del contexto de la IA: sé selectivo con los MCPs habilitados.
+
+### Documentación oficial
+
+- MCP WebdriverIO: <https://webdriver.io/docs/mcp>
+- Configuración: <https://webdriver.io/docs/mcp/configuration>
+- Especificación MCP: <https://modelcontextprotocol.io>
+- Repositorio: <https://github.com/webdriverio/mcp> · Paquete: `@wdio/mcp`
+- Extensión VS Code WebdriverIO: <https://marketplace.visualstudio.com/items?itemName=webdriverio.vscode-webdriverio>

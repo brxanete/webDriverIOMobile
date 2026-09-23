@@ -7,12 +7,34 @@
   "default_agent": "build",
   "permission": {
     "bash": {
-      "*": "allow",
+      "*": "ask",
       "rm -rf *": "deny",
+      "sudo *": "deny",
       "rm *": "ask",
+      "mv *": "ask",
+      "npm install*": "ask",
+      "npm uninstall*": "ask",
+      "git commit*": "ask",
       "git push*": "ask",
-      "git reset *": "ask",
-      "git clean *": "ask"
+      "git reset*": "ask",
+      "git clean*": "ask",
+      "npx *": "ask",
+      "npx appium *": "allow",
+      "npx allure *": "allow",
+      "npm run *": "allow",
+      "npm test*": "allow",
+      "adb devices": "allow",
+      "adb shell *": "allow",
+      "adb install*": "ask",
+      "git status": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git branch*": "allow",
+      "ls *": "allow",
+      "pwd": "allow",
+      "echo *": "allow",
+      "mkdir *": "allow",
+      "cp *": "allow"
     }
   }
 }

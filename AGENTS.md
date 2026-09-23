@@ -19,6 +19,15 @@ Ejecuta siempre desde la raíz del proyecto; nunca salgas del directorio para co
 | `npx allure serve allure-results` | Levanta el reporte HTML de Allure |
 | `npx appium --port 4724` | Servidor Appium (puerto que usa `wdio.conf.ts`) |
 
+### Harness de entorno (scripts/)
+
+| Comando | Descripción |
+|---|---|
+| `npm run healthcheck` | Verifica APK + emulador + Appium + driver (exit code 0/1) |
+| `npm run start-stack` | Arranca emulador (si falta) y Appium en 4724 |
+| `npm run verify` | Gate de calidad: `tsc --noEmit` + healthcheck |
+| `npm run verify:smoke` | Verify + smoke visual (`--smoke`) |
+
 Para el MCP de WebdriverIO: `export APPIUM_URL_PORT=4724` antes de usar las herramientas `wdio-mcp`.
 
 ## Estructura

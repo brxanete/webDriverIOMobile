@@ -25,6 +25,10 @@
     "test:drag": "npm run wdio -- --spec ./features/specs/drag.spec.ts",
     "test:home": "npm run wdio -- --spec ./features/specs/home.spec.ts",
     "test:all": "npm run wdio",
-    "test:smoke": "npm run wdio -- --mochaOpts.grep 'Validación visual'"
+    "test:smoke": "npm run wdio -- --mochaOpts.grep 'Validación visual'",
+    "healthcheck": "bash scripts/healthcheck.sh",
+    "start-stack": "bash scripts/start-stack.sh",
+    "verify": "bash scripts/verify.sh",
+    "verify:smoke": "bash scripts/verify.sh --smoke"
   }
 }

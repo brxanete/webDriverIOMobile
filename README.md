@@ -23,7 +23,9 @@ webDriverIOMobile/
 │       └── webView.page.ts        #   WebView
 ├── .vscode/
 │   └── settings.json              # Config multiplataforma (OS vars)
-├── DriverIO.apk                   # APK de la app bajo prueba
+├── scripts/
+│   └── emulator.ts                # Arranque automático del emulador (macOS/Windows)
+├── DriverIO.apk                   # APK de la app bajo prueba (gitignored)
 ├── wdio.conf.ts                   # Config principal con detección OS
 ├── tsconfig.json                  # TypeScript: ESNext, ESM, strict
 ├── package.json                   # type: "module", scripts npm
@@ -53,7 +55,8 @@ $('~Login-screen')       → Login screen
 $('~input-email')        → Campo email
 $('~button-LOGIN')       → Botón login
 $('~Drag-drop-screen')   → Drag puzzle
-$('~Carousel')           → Swipe carrusel
+$('~Swipe-screen')       → Swipe screen
+$('~card')               → Tarjeta del carrusel
 ```
 
 La navegación se realiza desde la bottom bar usando los accessibility labels:
@@ -130,11 +133,37 @@ npx appium driver list --installed
 # Listar dispositivos conectados
 adb devices
 
-# Si no hay emulador, crear y arrancar uno desde Android Studio
-# o desde CLI:
+# Listar AVDs disponibles
 emulator -list-avds
-emulator -avd <nombre-del-avd>
 ```
+
+> **No necesitas arrancar el emulador manualmente**: `npm run test:*` lo inicia automáticamente si no hay ningún dispositivo conectado (ver §3.4). Aun así puedes arrancarlo a mano con `emulator -avd <nombre-del-avd>` o `npm run emulator`.
+
+### 2.4 Clonar y ejecutar en Windows (automático)
+
+**Prerequisitos de la máquina** (no se pueden clonar):
+
+1. Node.js >= 20, Git y Android Studio con SDK + **Platform-Tools** + **Emulator**.
+2. Al menos un **AVD** creado (Android Studio → Device Manager).
+3. JDK de Android Studio disponible (`JAVA_HOME` o en `PATH`).
+
+> ⚠ **El APK no viaja en el repositorio**: `DriverIO.apk` está en `.gitignore`. Tras clonar, colócalo en la raíz del proyecto (o descárgalo del canal del equipo). Sin él, `onPrepare` falla con un mensaje explícito.
+
+```powershell
+git clone <url-del-repo>
+cd webDriverIOMobile
+npm install
+npm run test:all
+```
+
+Qué hace automáticamente:
+
+- Detecta el SDK en `%LOCALAPPDATA%\Android\Sdk` (o `ANDROID_HOME` / `ANDROID_SDK_ROOT`).
+- Si no hay dispositivo conectado, arranca `ANDROID_AVD` o el primer AVD disponible.
+- Espera el boot completo (`sys.boot_completed=1`) antes de crear la sesión.
+- El servicio de Appium se inicia solo (`services: ['appium']`) y usa `adb.exe`/`emulator.exe` según la plataforma.
+
+Si el primer arranque tarda más, aumenta el timeout: `set EMULATOR_BOOT_TIMEOUT=360000 && npm run test:all`.
 
 ---
 
@@ -182,13 +211,42 @@ capabilities: [{
 
 | Variable | Default | Propósito |
 |---|---|---|
-| `ANDROID_DEVICE_NAME` | `emulator-5554` | Nombre del device/emulador |
+| `ANDROID_DEVICE_NAME` | `emulator-5554` | Nombre del device/emulador (si se define, se respeta y no se autodetecta) |
+| `ANDROID_AVD` | primer AVD disponible | AVD a arrancar si no hay dispositivo conectado |
+| `EMULATOR_BOOT_TIMEOUT` | `240000` | Timeout en ms esperando el boot del emulador |
 | `ANDROID_PLATFORM_VERSION` | `''` | Versión Android (ej: `14`) |
 | `APPIUM_HOST` | `127.0.0.1` | Host de Appium |
 | `APPIUM_PORT` | `4724` | Puerto de Appium |
 | `CI` | `false` | Modo CI (log level warn) |
 
 ### 3.4 Lifecycle hooks
+
+**`onPrepare` — arranque automático del emulador** (`scripts/emulator.ts`):
+
+Antes de crear la sesión Appium, el hook verifica que exista el APK y busca un dispositivo Android conectado. Si no hay ninguno:
+
+1. Detecta el SDK (`ANDROID_HOME`, `ANDROID_SDK_ROOT` o rutas típicas de macOS/Windows).
+2. Lista los AVDs con `emulator -list-avds` y arranca `ANDROID_AVD` o el primero disponible.
+3. Espera con `adb` hasta que `sys.boot_completed=1`.
+4. Ajusta `appium:deviceName` al serial detectado (`emulator-5554`, etc.) salvo que `ANDROID_DEVICE_NAME` esté definido.
+
+Es multiplataforma: usa `adb.exe`/`emulator.exe` y `%LOCALAPPDATA%\Android\Sdk` en Windows.
+
+```typescript
+onPrepare: async (_config, capabilities) => {
+    if (!fs.existsSync(appPath)) {
+        throw new Error(`No se encontró el APK en ${appPath}...`);
+    }
+    const serial = await ensureEmulatorRunning();
+    if (!process.env.ANDROID_DEVICE_NAME) {
+        for (const capability of capabilities) {
+            (capability as Record<string, unknown>)['appium:deviceName'] = serial;
+        }
+    }
+},
+```
+
+**`beforeEach` (comentado)** — reinicia la app antes de cada test:
 
 ```typescript
 beforeEach: async () => {
@@ -197,7 +255,7 @@ beforeEach: async () => {
 }
 ```
 
-Hook (comentado en el config) que reinicia la aplicación antes de cada test. Garantiza un estado limpio y aislado entre tests, evitando efectos colaterales (ej: sesiones iniciadas). Está deshabilitado porque puede cerrar la sesión de Appium en algunos emuladores. La navegación entre pantallas se hace con `beforeEach` dentro de cada archivo de specs.
+Garantiza un estado limpio y aislado entre tests, evitando efectos colaterales (ej: sesiones iniciadas). Está deshabilitado porque puede cerrar la sesión de Appium en algunos emuladores. La navegación entre pantallas se hace con `beforeEach` dentro de cada archivo de specs.
 
 ### 3.5 Mocha Options
 
@@ -277,7 +335,8 @@ Con Appium corriendo, abrir Appium Inspector y configurar:
 
 | Comando | Descripción |
 |---|---|
-| `npm run wdio` | Ejecuta todos los `.spec.ts` |
+| `npm run emulator` | Arranca el emulador (si no hay uno conectado) y espera el boot |
+| `npm run wdio` | Ejecuta todos los `.spec.ts` (arranca emulador automáticamente) |
 | `npm run test` | Ejecuta `login.spec.ts` |
 | `npm run test:login` | Ejecuta `login.spec.ts` |
 | `npm run test:forms` | Ejecuta `forms.spec.ts` |
@@ -286,6 +345,8 @@ Con Appium corriendo, abrir Appium Inspector y configurar:
 | `npm run test:home` | Ejecuta `home.spec.ts` |
 | `npm run test:smoke` | Ejecuta solo las validaciones visuales (grep) |
 | `npm run test:all` | Ejecuta toda la suite |
+
+> Todos los comandos `test:*` levantan el emulador automáticamente si no hay un dispositivo conectado. Para elegir un AVD específico: `ANDROID_AVD=Medium_Phone_API_36.1 npm run test:all` (macOS) o `set ANDROID_AVD=... && npm run test:all` (Windows CMD).
 
 ### 5.2 Filtrado con Mocha grep
 
@@ -347,7 +408,7 @@ Dentro de un archivo de specs puedes usar `it.only(...)` para ejecutar solo ese 
 | CP-022 | Drag | Pieza a zona incorrecta | `drag.spec.ts` |
 
 **Total: 31 tests en la suite**
-- **Smoke visual**: 4 (una validación visual por feature: login, forms, swipe, drag)
+- **Smoke visual**: 5 (una validación visual por feature: login, forms, swipe, drag y home)
 - **Positive**: 16 (13 CP + 3 variantes del dropdown CP-013)
 - **Negative**: 6 (CP-003 al CP-007 y CP-022)
 - **Edge case / Boundary**: 2 (CP-008 y CP-014)
@@ -397,8 +458,8 @@ El hook `afterTest` captura automáticamente screenshots cuando un test pasa o f
 
 ### `Error: expect(received).toBe(expected) – Expected: true, Received: false` (Drag)
 
-- **Causa**: La pieza no se posicionó exactamente sobre la zona esperada. El `isPieceInZone` usa distancia euclidiana < 50px
-- **Solución**: Ajustar coordenadas o tolerancia en `drag.page.ts`
+- **Causa**: Al colocar una pieza correctamente, la app la integra al puzzle y elimina del árbol los nodos `~drag-*` y `~drop-*`; un drop incorrecto deja ambos visibles. Además, el puzzle resuelto abre el modal "Congratulations", cuyo overlay bloquea `~renew`.
+- **Solución**: `isPieceInZone` valida que pieza y zona ya no estén visibles. El `beforeEach` llama a `resetPuzzle()`, que pulsa `~button-Retry` si el modal está presente o `~renew` si no lo está.
 
 ### `Cannot find module` al ejecutar tests `.ts`
 

@@ -6,12 +6,16 @@ class swipePage {
         return $('~Swipe-screen');
     }
 
-    public get carousel() {
-        return $('~Carousel');
+    public get card() {
+        return $('~card');
+    }
+
+    public get horizontalTitle() {
+        return $('//android.widget.TextView[@text="Swipe horizontal"]');
     }
 
     public get webdriverioLogo() {
-        return $('~WebdriverIO logo');
+        return $('//android.widget.TextView[@text="\u{F02A4}"]');
     }
 
     async isOnScreen() {
@@ -19,30 +23,20 @@ class swipePage {
     }
 
     async swipeLeft() {
-        await this.carousel.waitForDisplayed();
-        const size = await this.carousel.getSize();
-        const location = await this.carousel.getLocation();
-        const startX = location.x + size.width * 0.8;
-        const endX = location.x + size.width * 0.2;
-        const centerY = location.y + size.height / 2;
-
-        await browser.action('pointer')
-            .move({ x: startX, y: centerY })
-            .down()
-            .pause(100)
-            .move({ x: endX, y: centerY })
-            .pause(100)
-            .up()
-            .perform();
+        await this.swipeCard(0.8, 0.2);
     }
 
     async swipeRight() {
-        await this.carousel.waitForDisplayed();
-        const size = await this.carousel.getSize();
-        const location = await this.carousel.getLocation();
-        const startX = location.x + size.width * 0.2;
-        const endX = location.x + size.width * 0.8;
-        const centerY = location.y + size.height / 2;
+        await this.swipeCard(0.2, 0.8);
+    }
+
+    private async swipeCard(startRatio: number, endRatio: number) {
+        await this.card.waitForDisplayed();
+        const location = await this.card.getLocation();
+        const size = await this.card.getSize();
+        const centerY = Math.round(location.y + size.height / 2);
+        const startX = Math.round(location.x + size.width * startRatio);
+        const endX = Math.round(location.x + size.width * endRatio);
 
         await browser.action('pointer')
             .move({ x: startX, y: centerY })
@@ -55,18 +49,32 @@ class swipePage {
     }
 
     async getActiveCardDescription(): Promise<string> {
-        const activeCard = await $('//android.widget.ScrollView[@content-desc="Swipe-screen"]//android.widget.TextView');
-        await activeCard.waitForDisplayed();
-        return await activeCard.getText();
+        const title = $('(//android.view.ViewGroup[@content-desc="card"])[1]/following-sibling::android.widget.TextView[2]');
+        await title.waitForDisplayed();
+        return await title.getText();
     }
 
     async isLogoVisible(): Promise<boolean> {
-        return await this.webdriverioLogo.isDisplayed();
+        try {
+            return await this.webdriverioLogo.isDisplayed();
+        } catch {
+            return false;
+        }
+    }
+
+    async resetToFirstCard(): Promise<void> {
+        for (let attempt = 0; attempt < 6; attempt++) {
+            if (await this.isLogoVisible()) {
+                return;
+            }
+            await this.swipeRight();
+        }
     }
 
     async validateElements() {
         await this.screen.waitForDisplayed();
-        await this.carousel.waitForDisplayed();
+        await this.horizontalTitle.waitForDisplayed();
+        await this.card.waitForDisplayed();
     }
 }
 

@@ -5,6 +5,8 @@ import permanentBar from '../userInterfaces/permanentBar.page.ts';
 describe('Swipe - Navegación por carrusel', () => {
     beforeEach(async () => {
         await permanentBar.goToSwipe();
+        await swipePage.isOnScreen();
+        await swipePage.resetToFirstCard();
     });
 
     it('Validación visual de la pantalla de Swipe', async () => {

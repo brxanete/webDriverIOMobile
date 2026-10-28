@@ -4,7 +4,10 @@ import permanentBar from '../userInterfaces/permanentBar.page.ts';
 
 describe('Login - Inicio de sesión y registro', () => {
     beforeEach(async () => {
+        await permanentBar.prepareForNavigation();
         await permanentBar.goToLogin();
+        await loginPage.isOnScreen();
+        await loginPage.tapLoginTab();
     });
 
     it('Validación visual de la pantalla de Login', async () => {

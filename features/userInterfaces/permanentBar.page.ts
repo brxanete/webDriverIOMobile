@@ -1,6 +1,10 @@
-import { $ } from '@wdio/globals'
+import { $, driver } from '@wdio/globals'
 
 class permanentBarPage {
+
+    private get okButton() {
+        return $('//android.widget.Button[@text="OK"]');
+    }
 
     public get homeButton() {
         return $('~Home');
@@ -28,6 +32,26 @@ class permanentBarPage {
 
     public get menuButton() {
         return $('~Menu');
+    }
+
+    async prepareForNavigation() {
+        await this.dismissDialogIfPresent();
+        await this.hideKeyboardIfShown();
+    }
+
+    private async dismissDialogIfPresent() {
+        if (await this.okButton.isDisplayed().catch(() => false)) {
+            await this.okButton.click();
+        }
+    }
+
+    private async hideKeyboardIfShown() {
+        try {
+            if (await driver.isKeyboardShown()) {
+                await driver.hideKeyboard();
+            }
+        } catch {
+        }
     }
 
     async goToHome() {

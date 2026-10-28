@@ -1,9 +1,12 @@
+import { driver } from '@wdio/globals';
 import homePage from '../userInterfaces/home.page.ts';
 import permanentBarPage from '../userInterfaces/permanentBar.page.ts';
 import webViewPage from '../userInterfaces/webView.page.ts';
 
 describe('Home y WebView', () => {
     beforeEach(async () => {
+        await driver.activateApp('com.wdiodemoapp');
+        await permanentBarPage.goToHome();
         await homePage.isOnHome();
     });
 

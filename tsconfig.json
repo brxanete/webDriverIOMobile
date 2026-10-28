@@ -27,6 +27,7 @@
     },
     "include": [
         "wdio.conf.ts",
+        "scripts/**/*.ts",
         "features/**/*.ts"
     ]
 }

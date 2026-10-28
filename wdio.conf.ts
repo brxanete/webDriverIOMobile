@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import type { Capabilities, Options } from '@wdio/types';
+import { ensureEmulatorRunning } from './scripts/emulator.ts';
 
 const projectRoot = process.cwd();
 const appPath = path.resolve(projectRoot, 'DriverIO.apk');
@@ -32,7 +34,8 @@ if (detectedSdkPath) {
 
     const platformToolsPath = path.join(detectedSdkPath, 'platform-tools');
     const cmdlineToolsPath = path.join(detectedSdkPath, 'cmdline-tools', 'latest', 'bin');
-    const extraPaths = [platformToolsPath, cmdlineToolsPath].filter((entry) => fs.existsSync(entry));
+    const emulatorPath = path.join(detectedSdkPath, 'emulator');
+    const extraPaths = [platformToolsPath, cmdlineToolsPath, emulatorPath].filter((entry) => fs.existsSync(entry));
 
     if (extraPaths.length > 0) {
         const currentPath = process.env.PATH || '';
@@ -64,6 +67,21 @@ export const config = {
     //     await driver.terminateApp('com.wdiodemoapp');
     //     await driver.activateApp('com.wdiodemoapp');
     // },
+
+    onPrepare: async (_config: Options.Testrunner, capabilities: Capabilities.TestrunnerCapabilities) => {
+        if (!fs.existsSync(appPath)) {
+            throw new Error(`No se encontró el APK en ${appPath}. Colócalo en la raíz del proyecto (está en .gitignore).`);
+        }
+
+        const serial = await ensureEmulatorRunning();
+
+        if (!process.env.ANDROID_DEVICE_NAME) {
+            const capabilityList = Array.isArray(capabilities) ? capabilities : [capabilities];
+            for (const capability of capabilityList) {
+                (capability as Record<string, unknown>)['appium:deviceName'] = serial;
+            }
+        }
+    },
 
     specs: [
         './features/specs/**/*.spec.ts'

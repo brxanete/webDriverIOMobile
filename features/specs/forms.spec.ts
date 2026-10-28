@@ -10,7 +10,9 @@ const dropdownOptions = [
 
 describe('Forms - Interacción con elementos de formulario', () => {
     beforeEach(async () => {
+        await permanentBar.prepareForNavigation();
         await permanentBar.goToForms();
+        await formsPage.isOnScreen();
     });
 
     it('Validación visual de la pantalla de Forms', async () => {
@@ -50,7 +52,7 @@ describe('Forms - Interacción con elementos de formulario', () => {
         it(`[CP-013] Seleccionar opción del Dropdown: ${option}`, async () => {
             await formsPage.tapDropdown();
             await formsPage.selectDropdownOption(option);
-            const dropdownText = await formsPage.dropdown.getText();
+            const dropdownText = await formsPage.getSelectedDropdownText();
             await expect(dropdownText).toContain(option);
         });
     });
@@ -67,7 +69,7 @@ describe('Forms - Interacción con elementos de formulario', () => {
         const switchText = await formsPage.getSwitchText();
         await expect(switchText).toBe('Click to turn the switch OFF');
 
-        const dropdownText = await formsPage.dropdown.getText();
+        const dropdownText = await formsPage.getSelectedDropdownText();
         await expect(dropdownText).toContain('Appium is awesome');
     });
 });

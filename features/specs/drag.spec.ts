@@ -11,6 +11,8 @@ const puzzlePieces = [
 describe('Drag - Puzzle de arrastrar y soltar', () => {
     beforeEach(async () => {
         await permanentBar.goToDrag();
+        await dragPage.isOnScreen();
+        await dragPage.resetPuzzle();
     });
 
     it('Validación visual de la pantalla de Drag', async () => {
@@ -33,7 +35,7 @@ describe('Drag - Puzzle de arrastrar y soltar', () => {
     });
 
     it('[CP-021] Reiniciar el puzzle con el botón Renew', async () => {
-        await dragPage.solvePuzzle();
+        await dragPage.dragPieceToZone('drag-l1', 'drop-l1');
         await dragPage.tapRenew();
         await dragPage.dragPiece('drag-l1').waitForDisplayed();
         await expect(dragPage.dragPiece('drag-l1')).toBeDisplayed();

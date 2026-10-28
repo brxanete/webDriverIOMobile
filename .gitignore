@@ -4,3 +4,7 @@ DriverIO.apk
 allure-results/
 allure-report/
 reports/
+
+# Guías (locales, no versionadas)
+Guia-*.md
+Guia-*.pdf

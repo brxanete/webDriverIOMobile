@@ -114,5 +114,5 @@ Variables útiles: `ANDROID_AVD`, `EMULATOR_BOOT_TIMEOUT` (240000), `ANDROID_DEV
 
 ## Documentación
 
-- Guía MCP + Appium + comandos macOS/Windows: `Guia-MCP-WebdriverIO-Appium.md` y `.pdf`.
+- Guía MCP + Appium + comandos macOS/Windows: `Guia-MCP-WebdriverIO-Appium.md` y `.pdf` (locales, no versionados).
 - Convenciones de specs y Page Objects: `.opencode/skills/`.

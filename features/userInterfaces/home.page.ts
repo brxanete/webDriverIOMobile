@@ -23,11 +23,11 @@ class homePage {
     }
 
     public get appleLogo() {
-        return $('//android.widget.TextView[@text="\uF0005"]');
+        return $('//android.widget.TextView[@text="\u{F0035}"]');
     }
 
     public get androidLogo() {
-        return $('//android.widget.TextView[@text="\uF0032"]');
+        return $('//android.widget.TextView[@text="\u{F0032}"]');
     }
 
     public get supportText() {
@@ -35,7 +35,7 @@ class homePage {
     }
 
     async isOnHome() {
-        await this.androidLogo.waitForDisplayed();
+        await this.screen.waitForDisplayed();
     }
 
     async validateElements() {

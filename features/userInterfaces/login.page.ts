@@ -1,4 +1,4 @@
-import { $ } from '@wdio/globals'
+import { $, driver } from '@wdio/globals'
 
 class loginPage {
 
@@ -63,10 +63,12 @@ class loginPage {
     }
 
     async tapLoginButton() {
+        await this.hideKeyboardIfShown();
         await this.loginButton.click();
     }
 
     async tapSignUpButton() {
+        await this.hideKeyboardIfShown();
         await this.signUpButton.click();
     }
 
@@ -83,6 +85,15 @@ class loginPage {
         await this.enterPassword(password);
         await this.enterRepeatPassword(repeatPassword);
         await this.tapSignUpButton();
+    }
+
+    private async hideKeyboardIfShown(): Promise<void> {
+        try {
+            if (await driver.isKeyboardShown()) {
+                await driver.hideKeyboard();
+            }
+        } catch {
+        }
     }
 
     async validateElements() {

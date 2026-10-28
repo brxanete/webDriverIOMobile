@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import type { Capabilities, Options } from '@wdio/types';
+import { ensureEmulatorRunning } from './scripts/emulator.ts';
 
 const projectRoot = process.cwd();
 const appPath = path.resolve(projectRoot, 'DriverIO.apk');
@@ -8,6 +10,7 @@ const androidPlatformVersion = process.env.ANDROID_PLATFORM_VERSION || '';
 const appiumHost = process.env.APPIUM_HOST || '127.0.0.1';
 const appiumPort = Number(process.env.APPIUM_PORT || 4724);
 const isCI = Boolean(process.env.CI);
+const enableAllure = process.env.ALLURE_REPORT === '1';
 
 const candidateSdkPaths = [
     process.env.ANDROID_HOME,
@@ -31,7 +34,8 @@ if (detectedSdkPath) {
 
     const platformToolsPath = path.join(detectedSdkPath, 'platform-tools');
     const cmdlineToolsPath = path.join(detectedSdkPath, 'cmdline-tools', 'latest', 'bin');
-    const extraPaths = [platformToolsPath, cmdlineToolsPath].filter((entry) => fs.existsSync(entry));
+    const emulatorPath = path.join(detectedSdkPath, 'emulator');
+    const extraPaths = [platformToolsPath, cmdlineToolsPath, emulatorPath].filter((entry) => fs.existsSync(entry));
 
     if (extraPaths.length > 0) {
         const currentPath = process.env.PATH || '';
@@ -57,13 +61,30 @@ export const config = {
     hostname: appiumHost,
     port: appiumPort,
 
-    beforeScenario: async () => {
-        await driver.terminateApp('com.wdiodemoapp');
-        await driver.activateApp('com.wdiodemoapp');
+    // Do not terminate and reactivate the app before every test.
+    // This can close the Appium session unexpectedly on some Android emulators.
+    // beforeEach: async () => {
+    //     await driver.terminateApp('com.wdiodemoapp');
+    //     await driver.activateApp('com.wdiodemoapp');
+    // },
+
+    onPrepare: async (_config: Options.Testrunner, capabilities: Capabilities.TestrunnerCapabilities) => {
+        if (!fs.existsSync(appPath)) {
+            throw new Error(`No se encontró el APK en ${appPath}. Colócalo en la raíz del proyecto (está en .gitignore).`);
+        }
+
+        const serial = await ensureEmulatorRunning();
+
+        if (!process.env.ANDROID_DEVICE_NAME) {
+            const capabilityList = Array.isArray(capabilities) ? capabilities : [capabilities];
+            for (const capability of capabilityList) {
+                (capability as Record<string, unknown>)['appium:deviceName'] = serial;
+            }
+        }
     },
 
     specs: [
-        './features/**/*.feature'
+        './features/specs/**/*.spec.ts'
     ],
 
     exclude: [],
@@ -99,22 +120,18 @@ export const config = {
 
     specFileRetriesDelay: 0,
 
-    framework: 'cucumber',
+    framework: 'mocha',
 
-    reporters: ['spec'],
+    reporters: enableAllure
+        ? ['spec', ['allure', {
+            outputDir: 'allure-results',
+            disableWebdriverStepsReporting: true,
+            disableWebdriverScreenshotsReporting: false
+        }]]
+        : ['spec'],
 
-    cucumberOpts: {
-        require: ['./features/step-definitions/**/*.ts'],
-        requireModule: ['tsx'],
-        backtrace: false,
-        dryRun: false,
-        failFast: false,
-        name: [],
-        snippets: true,
-        source: true,
-        strict: false,
-        tagExpression: '',
-        timeout: 60000,
-        ignoreUndefinedDefinitions: false
+    mochaOpts: {
+        ui: 'bdd',
+        timeout: 60000
     },
 }

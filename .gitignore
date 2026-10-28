@@ -1,4 +1,10 @@
 node_modules
+.DS_Store
 DriverIO.apk
 allure-results/
+allure-report/
 reports/
+
+# Guías (locales, no versionadas)
+Guia-*.md
+Guia-*.pdf

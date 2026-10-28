@@ -34,42 +34,49 @@ class dragPage {
         const zoneLocation = await zone.getLocation();
         const zoneSize = await zone.getSize();
 
-        const startX = pieceLocation.x + pieceSize.width / 2;
-        const startY = pieceLocation.y + pieceSize.height / 2;
-        const endX = zoneLocation.x + zoneSize.width / 2;
-        const endY = zoneLocation.y + zoneSize.height / 2;
+        const startX = Math.round(pieceLocation.x + pieceSize.width / 2);
+        const startY = Math.round(pieceLocation.y + pieceSize.height / 2);
+        const endX = Math.round(zoneLocation.x + zoneSize.width / 2);
+        const endY = Math.round(zoneLocation.y + zoneSize.height / 2);
 
-        await browser.action('pointer')
+        const action = browser.action('pointer')
             .move({ x: startX, y: startY })
             .down()
-            .pause(200)
-            .move({ x: endX, y: endY })
-            .pause(200)
-            .up()
-            .perform();
+            .pause(200);
+
+        const steps = 10;
+        for (let step = 1; step <= steps; step++) {
+            action.move({
+                x: Math.round(startX + ((endX - startX) * step) / steps),
+                y: Math.round(startY + ((endY - startY) * step) / steps)
+            });
+        }
+
+        await action.pause(200).up().perform();
     }
 
     async tapRenew() {
         await this.renewButton.click();
     }
 
-    async isPieceInZone(pieceId: string, zoneId: string): Promise<boolean> {
-        try {
-            const piece = this.dragPiece(pieceId);
-            const zone = this.dropZone(zoneId);
+    async resetPuzzle() {
+        const retryButton = $('~button-Retry');
 
-            const pieceLocation = await piece.getLocation();
-            const zoneLocation = await zone.getLocation();
-
-            const distance = Math.sqrt(
-                Math.pow(pieceLocation.x - zoneLocation.x, 2) +
-                Math.pow(pieceLocation.y - zoneLocation.y, 2)
-            );
-
-            return distance < 50;
-        } catch {
-            return false;
+        if (await retryButton.isDisplayed().catch(() => false)) {
+            await retryButton.click();
+        } else {
+            await this.renewButton.waitForDisplayed();
+            await this.renewButton.click();
         }
+
+        await this.dragPiece('drag-l1').waitForDisplayed();
+    }
+
+    async isPieceInZone(pieceId: string, zoneId: string): Promise<boolean> {
+        const pieceVisible = await this.dragPiece(pieceId).isDisplayed().catch(() => false);
+        const zoneVisible = await this.dropZone(zoneId).isDisplayed().catch(() => false);
+
+        return !pieceVisible && !zoneVisible;
     }
 
     async solvePuzzle() {

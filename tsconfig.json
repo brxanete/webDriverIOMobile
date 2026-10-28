@@ -11,7 +11,8 @@
             "node",
             "@wdio/globals/types",
             "expect-webdriverio",
-            "@wdio/cucumber-framework",
+            "@wdio/mocha-framework",
+            "mocha",
             "@wdio/appium-service"
         ],
         "skipLibCheck": true,
@@ -26,6 +27,7 @@
     },
     "include": [
         "wdio.conf.ts",
+        "scripts/**/*.ts",
         "features/**/*.ts"
     ]
 }
